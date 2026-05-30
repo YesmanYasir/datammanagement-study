@@ -186,7 +186,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);height:100vh
   user-select: none;
 }
 .quiz-q:hover { background: rgba(255,217,61,0.05); }
-.quiz-q::after { content: '👁️ Toon Antwoord'; font-size: 0.65rem; color: var(--acc4); font-family: var(--mono); }
+.quiz-q::after { content: '👁️ Toon Antwoord'; font-size: 0.65rem; color: var(--acc4); font-family: var(--mono); margin-left: 10px; white-space: nowrap;}
 .quiz-item.open .quiz-q::after { content: '🙈 Verberg'; color: var(--t2); }
 .quiz-a {
   padding: 10px;
@@ -369,7 +369,7 @@ const SQL_KW = [
   {w:'COALESCE',t:'fn',h:'Eerste niet-NULL waarde'},
   {w:'NULLIF',t:'fn',h:'NULL als twee waarden gelijk zijn'},
   {w:'BEGIN',t:'kw',h:'Start transactie'},
-  {w:'COMMIT',t:'kw',h:'Wijzigingen vastleggen'},
+  {w:'COMMIT',t:'kw',h:'Wijzigingen vastlegen'},
   {w:'ROLLBACK',t:'kw',h:'Wijzigingen ongedaan maken'},
   {w:'SAVEPOINT',t:'kw',h:'Tussenpunt in transactie'},
   {w:'ROLLBACK TO SAVEPOINT',t:'kw',h:'Gedeeltelijk terugdraaien'},
@@ -475,7 +475,7 @@ const TOPIC_HINTS = {
   procedure:[
     {type:'syntax',icon:'📐',t:'Procedure structuur',b:'<code>CREATE OR REPLACE PROCEDURE naam(param TYPE)<br>LANGUAGE plpgsql AS $$<br>DECLARE v_var TYPE;<br>BEGIN<br>&nbsp;&nbsp;-- logica<br>EXCEPTION WHEN OTHERS THEN<br>&nbsp;&nbsp;RAISE INFO \'Fout: %\', SQLERRM;<br>END;<br>$$;</code>'},
     {type:'tip',icon:'💡',t:'BEFORE vs AFTER trigger',b:'<code>BEFORE</code>: kan rij aanpassen of annuleren (return NULL = annuleer). <code>AFTER</code>: voor side effects zoals logging of cascade-updates.'},
-    {type:'concept',icon:'🔑',t:'NEW vs OLD',b:'In een trigger-functie: <code>NEW</code> = de nieuwe rij (bij INSERT/UPDATE). <code>OLD</code> = the oude rij (bij UPDATE/DELETE).'},
+    {type:'concept',icon:'🔑',t:'NEW vs OLD',b:'In een trigger-functie: <code>NEW</code> = de nieuwe rij (bij INSERT/UPDATE). <code>OLD</code> = de oude rij (bij UPDATE/DELETE).'},
   ],
   isolation:[
     {type:'concept',icon:'🔑',t:'Neveneffecten per niveau',b:'READ UNCOMMITTED → Dirty Read mogelijk<br>READ COMMITTED → Non-Repeatable Read mogelijk<br>REPEATABLE READ → Phantom Read mogelijk<br>SERIALIZABLE → Geen van alle'},
@@ -490,68 +490,52 @@ const TOPIC_HINTS = {
 };
 
 /* ═══════════════════════════════════════
-   NEW DATA: Topic Questions with Answers
+   ALL 10 TOPICS COMPLETED WITH QUESTIONS + ANSWERS
 ═══════════════════════════════════════ */
 const TOPIC_QUESTIONS = {
   select: [
-    {q: "Wat is de logische volgorde van uitvoering van WHERE en HAVING?", a: "<code>WHERE</code> wordt eerst uitgevoerd (vóór GROUP BY) om individuele rijen te filteren. <code>HAVING</code> wordt pas na GROUP BY uitgevoerd om de geaggregeerde groepen te filteren."},
-    {q: "Waarom werkt 'WHERE kolom = NULL' niet?", a: "In SQL resulteert elke vergelijking met <code>NULL</code> in 'Unknown'. Je moet altijd <code>IS NULL</code> of <code>IS NOT NULL</code> gebruiken."}
+    {q: "Wat is de logische volgorde van uitvoering van WHERE, JOIN en HAVING?", a: "Logisch voert SQL eerst de <code>JOIN</code> en <code>FROM</code> uit, filtert daarna rijen via <code>WHERE</code>, groepeert dan, en past pas als laatste <code>HAVING</code> toe op de groepen."},
+    {q: "Waarom werkt 'WHERE kolom = NULL' nooit in SQL?", a: "In SQL is <code>NULL</code> geen waarde maar de afwezigheid ervan. Elke directe vergelijking resulteert in 'Unknown'. Je moet verplicht <code>IS NULL</code> of <code>IS NOT NULL</code> gebruiken."}
   ],
   window: [
-    {q: "Wat is het verschil tussen RANK() en DENSE_RANK()?", a: "Bij gelijke waarden (ties) geven ze dezelfde rang, maar <code>RANK()</code> slaat daarna nummers over (bv. 1, 2, 2, 4), terwijl <code>DENSE_RANK()</code> opeenvolgend blijft (bv. 1, 2, 2, 3)."},
-    {q: "Kan een window function gebruikt worden in de WHERE-clausule?", a: "Nee, window functions worden pas na de WHERE- en GROUP BY-clausules uitgevoerd. Je moet een CTE of subquery gebruiken als je hierop wilt filteren."}
+    {q: "Wat is het exacte verschil tussen RANK() en DENSE_RANK() bij gelijke waarden?", a: "Beide geven gelijke rijen dezelfde rang. Maar <code>RANK()</code> slaat daarna rangnummers over (bv. 1, 2, 2, 4), terwijl <code>DENSE_RANK()</code> direct aansluitend nummert (bv. 1, 2, 2, 3)."},
+    {q: "Mag je een Window Function direct filteren in een WHERE-clausule?", a: "Nee, window functions worden pas uitgevoerd *na* de WHERE-fase. Om te filteren moet je de query inbedden in een Subquery of CTE."}
   ],
   groupby: [
-    {q: "Wat is het verschil tussen ROLLUP(a, b) en CUBE(a, b)?", a: "<code>ROLLUP</code> genereert hiërarchische subtotalen: (a,b), (a) en het algemeen totaal. <code>CUBE</code> genereert alle mogelijke combinaties subtotalen: (a,b), (a), (b) en het algemeen totaal."},
-    {q: "Mag je een niet-geaggregeerde kolom in SELECT zetten zonder GROUP BY?", a: "Nee, elke kolom in de SELECT die geen aggregaatfunctie (zoals SUM, COUNT) bevat, **moet** in de GROUP BY-clausule staan."}
+    {q: "Wat produceert GROUP BY ROLLUP(jaar, maand) aan subtotalen?", a: "Het genereert subtotalen voor: 1) de combinatie (jaar, maand), 2) per jaar (jaar, NULL), veegt alles samen en geeft 3) het algemeen totaal (NULL, NULL)."},
+    {q: "Wanneer gebruik je HAVING in plaats van WHERE?", a: "Je gebruikt <code>HAVING</code> uitsluitend wanneer je wilt filteren op het resultaat van een aggregaatfunctie (zoals <code>COUNT(*) > 5</code>), wat pas ná de groepering kan."}
   ],
   subquery: [
-    {q: "Wat is het gevaar van NOT IN met NULL-waarden in een subquery?", a: "Als de subquery ten minste één <code>NULL</code>-waarde retourneert, zal de gehele <code>NOT IN</code> query een lege resultaatset opleveren. Gebruik liever <code>NOT EXISTS</code>."}
+    {q: "Waarom is een correlated subquery vaak trager dan een reguliere subquery?", a: "Een correlated subquery verwijst naar kolommen van de buitenquery en moet daardoor (conceptueel) **rij voor rij opnieuw** worden geëvalueerd."},
+    {q: "Wat gebeurt er als een subquery binnen een NOT IN clausule één NULL retourneert?", a: "De gehele <code>NOT IN</code> conditie faalt en retourneert een **lege resultaatset**. Dit komt omdat <code>NOT IN (1, NULL)</code> vertaalt naar <code>x != 1 AND x != NULL</code>, wat altijd 'Unknown' is."}
   ],
   cte: [
-    {q: "Uit welke twee delen bestaat een WITH RECURSIVE query?", a: "Uit een **Anchor member** (het basisgeval dat de initiële rij(en) ophaalt) en een **Recursive member** (de stap die telkens op het vorige resultaat voortbouwt via een JOIN). Ze worden verbonden met <code>UNION ALL</code>."}
+    {q: "Hoe voorkom je een oneindige lus binnen een WITH RECURSIVE query?", a: "Door een expliciete stopconditie in de WHERE-clausule van de recursieve stap op te nemen (zoals een maximale diepte limiet <code>WHERE depth < 10</code>) of wanneer de JOIN geen rijen meer oplevert."},
+    {q: "Welke operator verbindt het basisgeval en de recursieve stap in een CTE?", a: "Dat is de <code>UNION ALL</code> operator (of soms <code>UNION</code> om duplicaten direct te filteren)."}
   ],
   ddl: [
-    {q: "Wat is het verschil tussen RESTRICT en NO ACTION bij ON DELETE?", a: "Beide weigeren de verwijdering als er nog kind-rijen bestaan. Maar <code>RESTRICT</code> controleert dit onmiddellijk, terwijl <code>NO ACTION</code> de controle uitstelt tot het einde van de transactie (handig bij deferred constraints)."}
+    {q: "Wat is het verschil tussen ON DELETE RESTRICT and ON DELETE NO ACTION?", a: "Beide blokkeren de verwijdering van een ouderrij als er kinderen zijn. Maar <code>RESTRICT</code> checkt dit direct onmiddellijk, terwijl <code>NO ACTION</code> de check toestaat aan het einde van de transactie (deferred constraint)."},
+    {q: "Kan een tabel meerdere PRIMARY KEY constraints bevatten?", a: "Nee, een tabel kan maar **één** Primary Key hebben. Wel kan die PK bestaan uit meerdere kolommen (samengestelde sleutel), en kun je daarnaast meerdere <code>UNIQUE</code> constraints definiëren."}
   ],
   transaction: [
-    {q: "Wat doet ROLLBACK TO SAVEPOINT met de status van een transactie?", a: "Het draait alleen de acties terug die ná het savepoint zijn uitgevoerd. De transactie zelf blijft **actief**. Je moet nog steeds een <code>COMMIT</code> of volledige <code>ROLLBACK</code> uitvoeren om te eindigen."}
+    {q: "Wat gebeurt er met de wijzigingen na een ROLLBACK TO SAVEPOINT?", a: "Alleen de database-wijzigingen die *na* het definieren van dat specifieke savepoint zijn gedaan worden teruggedraaid. De transactie zelf blijft **actief** en geopend!"},
+    {q: "Welke PL/pgSQL instructie breekt een actieve transactie onmiddellijk af?", a: "De instructie <code>RAISE EXCEPTION</code>. In tegenstelling tot <code>RAISE INFO</code> werpt dit een fatale fout op die de transactie abrupteert."}
   ],
   procedure: [
-    {q: "Wanneer kies je voor een BEFORE trigger in plaats van een AFTER trigger?", a: "Gebruik <code>BEFORE</code> als je de binnenkomende waarden (via <code>NEW</code>) nog wilt aanpassen of valideren vóór de schrijfoperatie plaatsvindt. <code>AFTER</code> is voor neveneffecten (zoals logging in een andere tabel)."}
+    {q: "Wat is het functionele verschil tussen de records NEW and OLD in triggers?", a: "<code>NEW</code> bevat de nieuw binnenkomende rij (beschikbaar bij INSERT/UPDATE). <code>OLD</code> bevat de oorspronkelijke rij zoals deze in de tabel stond (beschikbaar bij UPDATE/DELETE)."},
+    {q: "Hoe kun je een DML-actie volledig annuleren vanuit een BEFORE trigger?", a: "Door expliciet <code>RETURN NULL;</code> te retourneren in de trigger-functie. De geplande INSERT/UPDATE of DELETE wordt dan geruisloos overgeslagen."}
   ],
   isolation: [
-    {q: "Wat is een Phantom Read en op welk niveau wordt deze voorkomen?", a: "Een situatie waarin transactie A tweemaal dezelfde query runt en de tweede keer nieuwe rijen ziet die tussendoor door transactie B zijn gecocommit. Dit wordt vermeden op het niveau **SERIALIZABLE** (en in PostgreSQL ook al bij Repeatable Read)."}
+    {q: "Wat is een 'Non-Repeatable Read' en hoe verschilt dit van een 'Phantom Read'?", a: "Bij bir <code>Non-Repeatable Read</code> wijzigt een andere commit de *data van een bestaande rij* die je opnieuw leest. Bij een <code>Phantom Read</code> voegt een andere commit *volledig nieuwe rijen* toe die voldoen aan je zoekcriteria."}
   ],
   replication: [
-    {q: "Welke objecten gebruik je in PostgreSQL om Logische Replicatie op te zetten?", a: "Je gebruikt een <code>PUBLICATION</code> op de brondatabase (om tabellen te definiëren) en een <code>SUBSCRIPTION</code> op de replica-database (om de data op te halen)."}
+    {q: "Waarom kan fysieke replicatie niet tussen verschillende grote PostgreSQL versies?", a: "Omdat fysieke replicatie de Write-Ahead Logs (WAL) **byte-voor-byte** kopieert. De binaire opslagstructuur op de schijf moet exact identiek zijn. Logische replicatie kan dit wel."},
+    {q: "Draait de database bij het maken van een 'Hot Backup'?", a: "Ja, bij een **Hot Backup** (zoals via <code>pg_basebackup</code>) blijft de database volledig online en operationeel voor gebruikers."}
   ]
 };
 
 /* ═══════════════════════════════════════
-   DATA: Think-aloud Q&A
-═══════════════════════════════════════ */
-const QA = [
-  {k:['acid','atomicity'],r:'<strong>Atomicity</strong> = alles of niets. <strong>Consistency</strong> = DB blijft geldig na transactie. <strong>Isolation</strong> = transacties beïnvloeden elkaar niet. <strong>Durability</strong> = na COMMIT is het permanent, ook bij crash.'},
-  {k:['phantom'],r:'Een <strong>Phantom Read</strong> treedt op als transactie A dezelfde query tweemaal uitvoert en de second keer nieuwe rijen ziet die transactie B tussenin invoegde. Vermijden: SERIALIZABLE of REPEATABLE READ.'},
-  {k:['dirty read','dirty'],r:'Een <strong>Dirty Read</strong>: je leest uncommitted data van een andere transactie. Als die rollbackt, had jij nooit die data mogen zien. Enkel mogelijk bij READ UNCOMMITTED.'},
-  {k:['non-repeatable','non repeatable'],r:'Een <strong>Non-Repeatable Read</strong>: je leest dezelfde rij tweemaal in één transactie en krijgt verschillende waarden omdat een andere transactie die rij tussenin wijzigde en committede.'},
-  {k:['savepoint'],r:'Een <strong>SAVEPOINT</strong> is een tussenpunt in een actieve transactie. Met <code>ROLLBACK TO SAVEPOINT s1</code> draai je terug naar dat punt — maar de transactie is nog actief! Pas <code>COMMIT</code> of <code>ROLLBACK</code> (zonder SAVEPOINT) beëindigt de transactie.'},
-  {k:['rank','dense_rank','row_number'],r:'<strong>ROW_NUMBER</strong>: altijd uniek (1,2,3,4). <strong>RANK</strong>: gaten bij ties (1,2,2,4). <strong>DENSE_RANK</strong>: geen gaten bij ties (1,2,2,3).'},
-  {k:['partition by','partition'],r:'<code>PARTITION BY</code> verdeelt de window in groepen. De window-berekening (som, rang, etc.) herstart per groep. Vergelijkbaar met GROUP BY, maar alle rijen blijven zichtbaar.'},
-  {k:['cascade','on delete'],r:'<code>ON DELETE CASCADE</code>: kind-rijen automatisch verwijderd. <code>SET NULL</code>: FK-kolom wordt NULL. <code>RESTRICT</code>: verwijdering geweigerd als kinderen bestaan. <code>NO ACTION</code>: zelfde maar gecontroleerd aan einde transactie (kan uitgesteld worden).'},
-  {k:['not in','notin'],r:'<strong>Gevaar!</strong> Als de subquery bij <code>NOT IN</code> ook maar één NULL bevat, geeft de query altijd een lege resultaatset. Gebruik liever <code>NOT EXISTS</code> — dat is immuun voor NULLs.'},
-  {k:['exists','not exists'],r:'<code>EXISTS</code> / <code>NOT EXISTS</code> produceren intern een "Semi Join": zodra één match gevonden is, stopt de zoektocht. Efficiënter dan NOT IN en veilig voor NULLs.'},
-  {k:['recursive','cte','with recursive'],r:'Structuur: <code>WITH RECURSIVE naam AS (basisgeval UNION ALL recursieve_stap) SELECT * FROM naam;</code> De recursie stopt automatisch wanneer de recursieve stap geen rijen meer teruggeeft.'},
-  {k:['rollup','cube','grouping'],r:'<code>ROLLUP(a,b)</code>: subtotalen hiërarchisch (a+b → a → totaal). <code>CUBE(a,b)</code>: alle 2² combinaties. <code>GROUPING SETS((a,b),(a),(b),())</code>: zelf kiezen welke combinaties.'},
-  {k:['materialized','materialized view'],r:'Een <strong>Materialized View</strong> slaat het queryresultaat fysiek op. Voordeel: snel ophalen. Nadeel: data kan verouderd zijn. Bijwerken: <code>REFRESH MATERIALIZED VIEW naam;</code>.'},
-  {k:['fdw','foreign data'],r:'FDW (Foreign Data Wrapper) maakt het mogelijk om externe databronnen te bevragen als lokale tabellen. <code>postgres_fdw</code> voor PostgreSQL, <code>file_fdw</code> voor CSV.'},
-  {k:['replicatie','replication','logisch','fysiek'],r:'<strong>Fysieke replicatie</strong>: WAL byte-voor-byte → exacte clusterkopie. <strong>Logische replicatie</strong>: per INSERT/UPDATE/DELETE → selectief per tabel/rij. Logisch = flexibeler, kan tussen versies.'},
-  {k:['grant','revoke'],r:'<code>GRANT SELECT ON tabel TO rol;</code> geeft leesrecht. <code>REVOKE SELECT ON tabel FROM rol;</code> neemt het terug. <code>GRANT rol TO gebruiker;</code> kent de rol toe aan een gebruiker.'},
-];
-
-/* ═══════════════════════════════════════
-   STATE
+   STATE & CORE LOGIC
 ═══════════════════════════════════════ */
 let mode = 'sql';
 let currentTopic = '';
@@ -568,9 +552,6 @@ const charCount = document.getElementById('char-count');
 const thinkInput = document.getElementById('think-input');
 const thinkReply = document.getElementById('think-reply');
 
-/* ═══════════════════════════════════════
-   MODE switching
-═══════════════════════════════════════ */
 document.querySelectorAll('.pill').forEach(p => {
   p.addEventListener('click', () => {
     document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
@@ -582,7 +563,7 @@ document.querySelectorAll('.pill').forEach(p => {
       editor.placeholder = 'Schrijf hier je SQL query...\n\nBegin met SELECT, WITH, CREATE, INSERT...';
     } else if (mode === 'concept') {
       label.textContent = 'Concept Notities';
-      editor.placeholder = 'Schrijf wat je weet over een concept...\n\nBijvoorbeeld: "ACID betekent..."\n"Een phantom read treedt op als..."';
+      editor.placeholder = 'Schrijf wat je weet over een concept...\n\nBijvoorbeeld: "ACID betekent..."';
     } else {
       label.textContent = 'Vrij schrijven';
       editor.placeholder = 'Schrijf vrij — samenvattingen, vragen, aantekeningen...';
@@ -590,9 +571,6 @@ document.querySelectorAll('.pill').forEach(p => {
   });
 });
 
-/* ═══════════════════════════════════════
-   TOPIC change
-═══════════════════════════════════════ */
 function onTopicChange() {
   currentTopic = document.getElementById('topic-select').value;
   hintsShown.clear();
@@ -603,12 +581,12 @@ function onTopicChange() {
     return;
   }
 
-  // 1. Önce konuya özel interaktif soru kartını en üste ekle
+  // 1. Zorg dat de interactieve vragen ALTIJD als eerste bovenaan verschijnen
   if (TOPIC_QUESTIONS[currentTopic]) {
     addQuestionQuizCard(currentTopic);
   }
 
-  // 2. Ardından statik ipuçlarını (insights) peşinden yükle
+  // 2. Laad de bijbehorende statische insights er direct onder
   if (TOPIC_HINTS[currentTopic]) {
     showTopicHints(currentTopic);
   }
@@ -636,9 +614,6 @@ function showWelcome() {
   `;
 }
 
-/* ═══════════════════════════════════════
-   COMPANION: Add Interactive Question Quiz Card
-═══════════════════════════════════════ */
 function addQuestionQuizCard(topic) {
   const questions = TOPIC_QUESTIONS[topic];
   if (!questions || !questions.length) return;
@@ -650,7 +625,7 @@ function addQuestionQuizCard(topic) {
   div.className = 'hint-card question';
   
   let quizHtml = `<div class="quiz-wrapper">`;
-  questions.forEach((qObj, index) => {
+  questions.forEach((qObj) => {
     quizHtml += `
       <div class="quiz-item" onclick="toggleQuizAnswer(this)">
         <div class="quiz-q">${qObj.q}</div>
@@ -663,16 +638,15 @@ function addQuestionQuizCard(topic) {
   div.innerHTML = `
     <div class="hint-header">
       <span class="hint-icon">🤔</span>
-      <span class="hint-type-label">Onderwerp Quiz — Test je kennis</span>
+      <span class="hint-type-label">Onderwerp Quiz — Klik voor antwoord</span>
       <button class="hint-dismiss" onclick="this.closest('.hint-card').remove()" title="Sluiten">✕</button>
     </div>
     <div class="hint-body">
-      Probeer deze examenvragen op te lossen in de editor! Klik op de vraag voor de oplossing.
+      Probeer deze examenvragen op te lossen. Klik op een vraag om de verborgen oplossing te bekijken!
       ${quizHtml}
     </div>
   `;
   
-  // Her zaman en üste ekle (diğer insight kartları bunun altına eklenecektir)
   companionBody.insertBefore(div, companionBody.firstChild);
 }
 
@@ -681,7 +655,7 @@ function toggleQuizAnswer(el) {
 }
 
 /* ═══════════════════════════════════════
-   AUTOCOMPLETE
+   AUTOCOMPLETE ENGINE
 ═══════════════════════════════════════ */
 editor.addEventListener('keydown', e => {
   if (ac.style.display === 'block') {
@@ -740,7 +714,6 @@ editor.addEventListener('input', () => {
 });
 
 editor.addEventListener('blur', () => setTimeout(hideAC, 120));
-
 function hideAC() { ac.style.display = 'none'; acFocus = -1; }
 
 function moveFocus(dir) {
@@ -765,22 +738,22 @@ function selectAC(item) {
 }
 
 /* ═══════════════════════════════════════
-   CONTEXT HINTS (triggered by keywords)
+   INSIGHTS & REAL-TIME ANALYSIS
 ═══════════════════════════════════════ */
 const KEYWORD_HINTS = {
   'not_in': {type:'warning',icon:'⚠️',t:'NOT IN + NULL gevaar',b:'Als de subquery één <strong>NULL</strong> bevat, geeft <code>NOT IN</code> altijd een lege resultaatset! Gebruik liever <code>NOT EXISTS</code>.'},
   'notin': {type:'warning',icon:'⚠️',t:'NOT IN + NULL gevaar',b:'Als de subquery één <strong>NULL</strong> bevat, geeft <code>NOT IN</code> altijd een lege resultaatset! Gebruik liever <code>NOT EXISTS</code>.'},
-  'cross_join': {type:'warning',icon:'⚠️',t:'CROSS JOIN',b:'Produceert N×M rijen (cartesiaans product). 3 rijen × 3 rijen = 9 rijen. Zeker dat je dit wil?'},
-  'with_recursive': {type:'syntax',icon:'📐',t:'Recursieve CTE',b:'Structuur: <code>basisgeval UNION ALL recursieve_stap</code>.'},
-  'rollback_to_savepoint': {type:'tip',icon:'💡',t:'SAVEPOINT',b:'Na ROLLBACK TO SAVEPOINT is de transactie nog actief! Gebruik COMMIT of gewone ROLLBACK om te beëindigen.'},
-  'rank': {type:'tip',icon:'💡',t:'RANK vs DENSE_RANK',b:'<code>RANK</code>: gaten bij ties (1,2,2,4). <code>DENSE_RANK</code>: geen gaten (1,2,2,3).'},
-  'dense_rank': {type:'tip',icon:'💡',t:'RANK vs DENSE_RANK',b:'<code>DENSE_RANK</code> geeft geen gaten bij gelijke waarden. <code>RANK</code> slaat nummers over.'},
-  'raise_exception': {type:'warning',icon:'⚠️',t:'RAISE EXCEPTION',b:'RAISE EXCEPTION <strong>breekt de transactie</strong>. Gebruik <code>RAISE INFO</code> als de transactie door moet gaan.'},
-  'on_delete_cascade': {type:'concept',icon:'🔑',t:'CASCADE',b:'Verwijdert automatisch alle kind-rijen als de parent wordt verwijderd.'},
-  'partition_by': {type:'tip',icon:'💡',t:'PARTITION BY',b:'Reset de window-berekening per groep, maar behoudt alle rijen afzonderlijk.'},
-  'explain_analyze': {type:'tip',icon:'💡',t:'EXPLAIN ANALYZE',b:'Kijk naar: <em>Seq Scan</em> (volledig) of <em>Index Scan</em> (selectief) en vergelijk estimated vs actual rows.'},
-  'having': {type:'concept',icon:'🔑',t:'HAVING vs WHERE',b:'WHERE filtert rijen vóór aggregatie. HAVING filtert groepen ná aggregatie.'},
-  'rollup': {type:'tip',icon:'💡',t:'ROLLUP',b:'<code>GROUP BY ROLLUP(a, b)</code> genereert subtotalen per combinaties van (a,b), (a) en het algemene totaal.'},
+  'cross_join': {type:'warning',icon:'⚠️',t:'CROSS JOIN',b:'Produceert N×M rijen (cartesiaans product). Zeker dat je dit wil?'},
+  'with_recursive': {type:'syntax',icon:'📐',t:'Recursieve CTE',b:'Structuur vereist: <code>basisgeval UNION ALL recursieve_stap</code>.'},
+  'rollback_to_savepoint': {type:'tip',icon:'💡',t:'SAVEPOINT',b:'Na ROLLBACK TO SAVEPOINT is de transactie nog steeds geopend en actief.'},
+  'rank': {type:'tip',icon:'💡',t:'RANK vs DENSE_RANK',b:'<code>RANK</code> laat gaten vallen bij ties, <code>DENSE_RANK</code> sluit naadloos aan.'},
+  'dense_rank': {type:'tip',icon:'💡',t:'RANK vs DENSE_RANK',b:'<code>DENSE_RANK</code> kent opeenvolgende rangnummers toe zonder sprongen.'},
+  'raise_exception': {type:'warning',icon:'⚠️',t:'RAISE EXCEPTION',b:'Dit herroept en verbreekt de huidige transactie volledig.'},
+  'on_delete_cascade': {type:'concept',icon:'🔑',t:'CASCADE',b:'Wist gekoppelde records in de kindtabel automatisch mee.'},
+  'partition_by': {type:'tip',icon:'💡',t:'PARTITION BY',b:'Herstart de aggregatieteller of rangorde per unieke groepswaarde.'},
+  'explain_analyze': {type:'tip',icon:'💡',t:'EXPLAIN ANALYZE',b:'Vergroot je inzicht door de geschatte kosten te vergelijken met de actuele runtime.'},
+  'having': {type:'concept',icon:'🔑',t:'HAVING vs WHERE',b:'WHERE filtert vóór aggregatie, HAVING filtert uitsluitend ná de groepering.'},
+  'rollup': {type:'tip',icon:'💡',t:'ROLLUP',b:'Berekent stapsgewijze aggregaties en sluit af met een algemeen cumulatief totaal.'},
 };
 
 function triggerContextHint(kw) {
@@ -792,35 +765,26 @@ function triggerContextHint(kw) {
   addHint(hint);
 }
 
-/* ═══════════════════════════════════════
-   ANALYZE (Ctrl+Enter)
-═══════════════════════════════════════ */
 function analyzeQuery() {
   const text = editor.value.trim().toUpperCase();
   if (!text) return;
 
   if (text.includes('NOT IN') && !text.includes('NOT EXISTS')) {
-    addHint({type:'warning',icon:'⚠️',t:'Opgepast: NOT IN gedetecteerd',b:'Controleer of de subquery NULLs kan bevatten. Zo ja, gebruik <code>NOT EXISTS</code> als veiliger alternatief.'});
+    addHint({type:'warning',icon:'⚠️',t:'Analyse: NOT IN opgemerkt',b:'Let op mogelijke NULL-waarden binnen je subquery set.'});
   }
   if (text.includes('GROUP BY') && text.includes('OVER (')) {
-    addHint({type:'tip',icon:'💡',t:'GROUP BY + Window',b:'Je combineert GROUP BY en window functions. Zorg dat de window-kolommen ook in GROUP BY staan of geaggregeerd zijn.'});
-  }
-  if (text.includes('CROSS JOIN')) {
-    addHint({type:'question',icon:'🤔',t:'CROSS JOIN check',b:'Je gebruikt CROSS JOIN. Is dit de bedoeling? Controleer het aantal verwachte rijen (N×M).'});
+    addHint({type:'tip',icon:'💡',t:'Analyse: GROUP BY + Window',b:'Zorg dat de window functies correct op geaggregeerde kolommen opereren.'});
   }
   if ((text.includes('WITH RECURSIVE') || text.includes('RECURSIVE')) && !text.includes('UNION ALL')) {
-    addHint({type:'warning',icon:'⚠️',t:'Recursieve CTE',b:'Een recursieve CTE heeft <code>UNION ALL</code> nodig tussen het basisgeval en de recursieve stap!'});
+    addHint({type:'warning',icon:'⚠️',t:'Analyse: Syntaxfout',b:'Een recursieve CTE vereist een <code>UNION ALL</code> koppeling.'});
   }
-  if (!text.includes('NOT IN') && !text.includes('NOT EXISTS') && !text.includes('CROSS JOIN') && !text.includes('RECURSIVE')) {
-    addHint({type:'tip',icon:'💡',t:'Query geanalyseerd',b:'Geen directe logische valkuilen gevonden in de syntax. Controleer of de tabel- en kolomnamen kloppen.'});
+  if (!text.includes('NOT IN') && !text.includes('NOT EXISTS') && !text.includes('CROSS JOIN')) {
+    addHint({type:'tip',icon:'💡',t:'Analyse voltooid',b:'Geen kritieke logische syntaxfouten aangetroffen.'});
   }
   statusText.innerHTML = '<span class="status-ok">Analyse klaar</span>';
   setTimeout(() => statusText.textContent = 'Klaar', 3000);
 }
 
-/* ═══════════════════════════════════════
-   COMPANION: Add insight hint card
-═══════════════════════════════════════ */
 function addHint(h) {
   const welcome = document.getElementById('welcome');
   if (welcome) welcome.remove();
@@ -836,7 +800,7 @@ function addHint(h) {
     <div class="hint-body">${h.b}</div>
   `;
   
-  // Eğer içeride bir soru/quiz kartı varsa, yeni insight kartlarını onun hemen ALTINA ekle (soru üstte sabit kalsın)
+  // Zorg dat de Quiz-kaart (Vragen) ALTIJD bovenaan blijft vaststaan
   const firstQuestionCard = companionBody.querySelector('.hint-card.question');
   if (firstQuestionCard && h.type !== 'question') {
     firstQuestionCard.after(div);
@@ -844,7 +808,6 @@ function addHint(h) {
     companionBody.insertBefore(div, companionBody.firstChild);
   }
 
-  // En fazla 8 kart tut (Scroll taşmasını önlemek için)
   const cards = companionBody.querySelectorAll('.hint-card');
   if (cards.length > 8) cards[cards.length - 1].remove();
 }
@@ -854,7 +817,7 @@ function clearCompanion() {
 }
 
 /* ═══════════════════════════════════════
-   THINK-ALOUD input
+   THINK-ALOUD PROMPT
 ═══════════════════════════════════════ */
 thinkInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') {
@@ -865,7 +828,7 @@ thinkInput.addEventListener('keydown', e => {
     if (match) {
       thinkReply.innerHTML = match.r;
     } else {
-      thinkReply.innerHTML = `Geen directe hint voor "<em>${thinkInput.value.trim()}</em>". Probeer: acid, phantom, savepoint, rank, not in, cascade, rollup…`;
+      thinkReply.innerHTML = `Geen directe match voor "<em>${thinkInput.value.trim()}</em>".`;
     }
     thinkInput.value = '';
     setTimeout(() => { thinkReply.style.display = 'none'; }, 8000);
@@ -873,7 +836,7 @@ thinkInput.addEventListener('keydown', e => {
 });
 
 /* ═══════════════════════════════════════
-   EDITOR: Live Context Scanner
+   LIVE SCANNER DEBOUNCE
 ═══════════════════════════════════════ */
 let debounceTimer;
 editor.addEventListener('input', () => {
@@ -884,14 +847,10 @@ editor.addEventListener('input', () => {
       {pattern:'NOT IN', key:'not_in'},
       {pattern:'CROSS JOIN', key:'cross_join'},
       {pattern:'WITH RECURSIVE', key:'with_recursive'},
-      {pattern:'ROLLBACK TO SAVEPOINT', key:'rollback_to_savepoint'},
       {pattern:'RANK()', key:'rank'},
       {pattern:'DENSE_RANK()', key:'dense_rank'},
-      {pattern:'RAISE EXCEPTION', key:'raise_exception'},
-      {pattern:'ON DELETE CASCADE', key:'on_delete_cascade'},
       {pattern:'PARTITION BY', key:'partition_by'},
       {pattern:'HAVING', key:'having'},
-      {pattern:'ROLLUP', key:'rollup'},
     ];
     checks.forEach(c => {
       if (text.includes(c.pattern)) triggerContextHint(c.key);
