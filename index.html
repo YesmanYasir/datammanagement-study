@@ -3,860 +3,1078 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DM Study Companion</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<title>Data Management — Oefenapp</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0c0c0f;
-  --s1:#131318;
-  --s2:#1a1a22;
-  --s3:#22222e;
-  --border:#2a2a38;
-  --border2:#3a3a50;
-  --acc:#6c63ff;
-  --acc2:#00d4aa;
-  --acc3:#ff6b6b;
-  --acc4:#ffd93d;
-  --text:#e8e8f0;
-  --t2:#8888a8;
-  --t3:#4a4a68;
-  --mono:'IBM Plex Mono',monospace;
-  --sans:'Syne',sans-serif;
+  --bg:#0d0d10;--s1:#141418;--s2:#1c1c24;--s3:#24242e;
+  --border:#2c2c3a;--border2:#3c3c50;
+  --acc:#7c6ef5;--acc2:#00c9a7;--acc3:#ff6b6b;--acc4:#ffc94d;
+  --text:#e6e6f0;--t2:#8888aa;--t3:#4a4a68;
+  --mono:'IBM Plex Mono',monospace;--sans:'Syne',sans-serif;
   --r:10px;
 }
-body{background:var(--bg);color:var(--text);font-family:var(--sans);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column}
 
-/* ── TOP BAR ── */
-.topbar{
-  display:flex;align-items:center;gap:12px;
-  padding:10px 16px;
-  border-bottom:1px solid var(--border);
-  background:var(--s1);
-  flex-shrink:0;
+/* ── HEADER ── */
+.header{
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  background:var(--s1);display:flex;align-items:center;gap:14px;flex-wrap:wrap;
 }
-.logo{font-size:1rem;font-weight:800;letter-spacing:-.02em}
-.logo em{color:var(--acc);font-style:normal}
-.mode-pills{display:flex;gap:6px;margin-left:auto}
-.pill{
-  font-family:var(--mono);font-size:0.7rem;padding:4px 12px;
-  border-radius:99px;border:1px solid var(--border);
-  color:var(--t2);cursor:pointer;background:transparent;transition:all .15s;
+.logo{font-size:1.1rem;font-weight:800;letter-spacing:-.02em}
+.logo span{color:var(--acc)}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.fb{
+  font-family:var(--mono);font-size:0.68rem;padding:5px 13px;
+  border-radius:99px;border:1px solid var(--border);color:var(--t2);
+  background:transparent;cursor:pointer;transition:all .15s;white-space:nowrap;
 }
-.pill:hover{border-color:var(--acc);color:var(--text)}
-.pill.active{background:var(--acc);border-color:var(--acc);color:#fff}
-.kb-hint{font-family:var(--mono);font-size:0.65rem;color:var(--t3)}
+.fb:hover{border-color:var(--acc);color:var(--text)}
+.fb.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.progress-wrap{width:180px}
+.pbar-label{font-family:var(--mono);font-size:0.65rem;color:var(--t2);display:flex;justify-content:space-between;margin-bottom:4px}
+.pbar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .3s}
 
-/* ── LAYOUT ── */
-.workspace{display:flex;flex:1;overflow:hidden}
+/* ── MAIN ── */
+.main{max-width:780px;margin:0 auto;padding:24px 20px;width:100%}
 
-/* ── LEFT: EDITOR ── */
-.editor-pane{
-  display:flex;flex-direction:column;
-  width:55%;border-right:1px solid var(--border);
-  flex-shrink:0;
+/* ── QUESTION CARD ── */
+.qcard{
+  background:var(--s1);border:1px solid var(--border);border-radius:var(--r);
+  margin-bottom:18px;overflow:hidden;transition:box-shadow .2s;
 }
-.editor-header{
-  display:flex;align-items:center;gap:8px;
-  padding:8px 14px;border-bottom:1px solid var(--border);
-  background:var(--s2);flex-shrink:0;
-}
-.editor-label{font-family:var(--mono);font-size:0.7rem;color:var(--t2)}
-.topic-select{
-  font-family:var(--mono);font-size:0.72rem;background:var(--s3);
-  border:1px solid var(--border);color:var(--text);
-  padding:4px 8px;border-radius:6px;cursor:pointer;
-  margin-left:auto;
-}
-.editor-wrap{position:relative;flex:1;display:flex;flex-direction:column;overflow:hidden}
+.qcard:hover{box-shadow:0 6px 28px rgba(124,110,245,.07)}
 
-/* code editor */
-.code-area{
-  flex:1;resize:none;
-  background:var(--bg);color:var(--text);
-  font-family:var(--mono);font-size:0.82rem;line-height:1.65;
-  border:none;outline:none;padding:16px;
-  tab-size:4;overflow-y:auto;
-  caret-color:var(--acc2);
+.qcard-head{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:14px 16px 10px;border-bottom:1px solid var(--border);
 }
-.code-area::placeholder{color:var(--t3)}
+.qnum{
+  font-family:var(--mono);font-size:0.7rem;font-weight:600;
+  color:var(--acc);min-width:28px;padding-top:2px;
+}
+.qtags{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto;padding-top:2px}
+.qtag{
+  font-family:var(--mono);font-size:0.6rem;padding:2px 8px;
+  border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;
+}
+.tag-stelling{background:rgba(124,110,245,.15);color:var(--acc)}
+.tag-theorie{background:rgba(255,201,77,.13);color:var(--acc4)}
+.tag-sql{background:rgba(0,201,167,.13);color:var(--acc2)}
+.tag-ddl{background:rgba(74,222,128,.12);color:#4ade80}
+.tag-procedure{background:rgba(255,107,107,.13);color:var(--acc3)}
+.tag-transactie{background:rgba(255,107,107,.1);color:#fca5a5}
+.tag-window{background:rgba(124,110,245,.18);color:#a89cf7}
+.tag-performantie{background:rgba(255,201,77,.1);color:#fde68a}
+.tag-security{background:rgba(74,222,128,.1);color:#86efac}
 
-/* autocomplete dropdown */
-.autocomplete{
-  position:absolute;left:0;right:0;
-  background:var(--s2);border:1px solid var(--acc);
-  border-radius:var(--r);overflow:hidden;
-  box-shadow:0 8px 32px rgba(0,0,0,0.5);
-  z-index:20;max-height:220px;overflow-y:auto;
-  display:none;
-}
-.ac-item{
-  display:flex;align-items:center;gap:10px;
-  padding:8px 12px;cursor:pointer;
-  font-family:var(--mono);font-size:0.78rem;
-  border-bottom:1px solid var(--border);transition:background .1s;
-}
-.ac-item:last-child{border-bottom:none}
-.ac-item:hover,.ac-item.focused{background:var(--s3)}
-.ac-type{
-  font-size:0.6rem;padding:2px 6px;border-radius:4px;
-  font-weight:600;white-space:nowrap;flex-shrink:0;
-}
-.ac-kw{background:rgba(108,99,255,.2);color:var(--acc)}
-.ac-fn{background:rgba(0,212,170,.15);color:var(--acc2)}
-.ac-cl{background:rgba(255,107,107,.15);color:var(--acc3)}
-.ac-hint{color:var(--t2);font-size:0.7rem;margin-left:auto;font-style:italic}
-.ac-match{color:var(--acc4)}
+.qsource{font-family:var(--mono);font-size:0.6rem;color:var(--t3)}
 
-/* status bar */
-.status-bar{
-  display:flex;align-items:center;gap:12px;
-  padding:5px 14px;border-top:1px solid var(--border);
-  background:var(--s2);font-family:var(--mono);font-size:0.65rem;color:var(--t3);
-  flex-shrink:0;
-}
-.status-ok{color:var(--acc2)}
-.status-warn{color:var(--acc4)}
-
-/* ── RIGHT: COMPANION ── */
-.companion-pane{
-  flex:1;display:flex;flex-direction:column;overflow:hidden;
-  background:var(--s1);
-}
-.companion-header{
-  padding:8px 14px;border-bottom:1px solid var(--border);
-  background:var(--s2);flex-shrink:0;
-  font-family:var(--mono);font-size:0.7rem;color:var(--t2);
-  display:flex;align-items:center;gap:8px;
-}
-.comp-dot{width:6px;height:6px;border-radius:50%;background:var(--acc2);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-
-.companion-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
-
-/* hint cards */
-.hint-card{
-  background:var(--s2);border:1px solid var(--border);
-  border-radius:var(--r);overflow:hidden;
-  animation:slideIn .2s ease;
-}
-@keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.hint-card.concept{border-left:3px solid var(--acc)}
-.hint-card.question{border-left:3px solid var(--acc4)}
-.hint-card.warning{border-left:3px solid var(--acc3)}
-.hint-card.tip{border-left:3px solid var(--acc2)}
-.hint-card.syntax{border-left:3px solid #a78bfa}
-
-.hint-header{
-  display:flex;align-items:center;gap:6px;
-  padding:7px 10px;border-bottom:1px solid var(--border);
-  font-family:var(--mono);font-size:0.62rem;
-}
-.hint-icon{font-size:0.85rem}
-.hint-type-label{color:var(--t2)}
-.hint-dismiss{margin-left:auto;cursor:pointer;color:var(--t3);font-size:0.75rem;padding:0 4px;background:transparent;border:none;}
-.hint-dismiss:hover{color:var(--acc3)}
-.hint-body{padding:9px 11px;font-size:0.82rem;line-height:1.6;color:var(--text)}
-.hint-body code{
+.qbody{padding:14px 16px 10px}
+.qtext{font-size:.93rem;line-height:1.7}
+.qtext code,.hint-body code,.answer-text code{
   font-family:var(--mono);background:var(--s3);
-  padding:.1em .4em;border-radius:4px;font-size:.8em;color:var(--acc2);
+  padding:.1em .4em;border-radius:4px;font-size:.83em;color:var(--acc2);
 }
-.hint-body strong{color:var(--acc4);font-weight:600}
+.qtext pre,.answer-text pre{
+  font-family:var(--mono);background:var(--s2);border:1px solid var(--border);
+  border-radius:6px;padding:12px 14px;font-size:.78rem;overflow-x:auto;
+  margin:10px 0;line-height:1.55;color:#ccd0fa;
+}
+.kw{color:var(--acc)}.fn{color:var(--acc2)}.str{color:#a3e635}.cm{color:var(--t3)}.num{color:var(--acc4)}
 
-/* Quiz Style Toggle for Questions */
-.quiz-wrapper {
-  margin-top: 8px;
-  border-top: 1px dashed var(--border);
-  padding-top: 8px;
+/* hint: thinking prompt shown before answer */
+.hint-box{
+  margin:8px 0 2px;padding:10px 13px;
+  background:rgba(255,201,77,.05);
+  border-left:3px solid var(--acc4);border-radius:0 6px 6px 0;
+  font-size:.83rem;color:#e0d5a0;font-style:italic;line-height:1.6;
 }
-.quiz-item {
-  margin-bottom: 8px;
-  background: var(--s3);
-  border-radius: 6px;
-  overflow: hidden;
-}
-.quiz-q {
-  padding: 8px 10px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  user-select: none;
-}
-.quiz-q:hover { background: rgba(255,217,61,0.05); }
-.quiz-q::after { content: '👁️ Toon Antwoord'; font-size: 0.65rem; color: var(--acc4); font-family: var(--mono); margin-left: 10px; white-space: nowrap;}
-.quiz-item.open .quiz-q::after { content: '🙈 Verberg'; color: var(--t2); }
-.quiz-a {
-  padding: 10px;
-  font-size: 0.78rem;
-  background: var(--s2);
-  border-top: 1px solid var(--border);
-  color: #d4d4f8;
-  display: none;
-  line-height: 1.5;
-}
-.quiz-item.open .quiz-a { display: block; }
+.hint-body{font-size:.83rem;line-height:1.6}
 
-/* think-aloud prompt */
-.think-wrap{
-  border-top:1px solid var(--border);padding:10px 14px;
-  flex-shrink:0;background:var(--s2);
+.qactions{
+  padding:10px 16px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
 }
-.think-input{
-  width:100%;background:var(--s3);border:1px solid var(--border);
-  color:var(--text);font-family:var(--mono);font-size:0.78rem;
-  padding:8px 12px;border-radius:6px;outline:none;
-  transition:border-color .15s;
+.btn-show{
+  background:var(--acc);color:#fff;border:none;
+  padding:7px 16px;border-radius:6px;font-family:var(--mono);font-size:.75rem;
+  cursor:pointer;font-weight:600;transition:opacity .15s;
 }
-.think-input:focus{border-color:var(--acc)}
-.think-input::placeholder{color:var(--t3)}
-.think-reply{
-  font-family:var(--mono);font-size:0.72rem;color:var(--acc2);
-  margin-top:6px;min-height:16px;line-height:1.5;
-  display:none;
+.btn-show:hover{opacity:.88}
+.btn-mark{
+  background:transparent;border:1px solid var(--border);color:var(--t2);
+  padding:6px 13px;border-radius:6px;font-family:var(--mono);font-size:.72rem;
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;
+}
+.btn-mark:hover.ok{border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,.07)}
+.btn-mark:hover.err{border-color:var(--acc3);color:var(--acc3);background:rgba(255,107,107,.07)}
+.btn-mark.selected-ok{border-color:#4ade80;color:#4ade80;background:rgba(74,222,128,.1)}
+.btn-mark.selected-err{border-color:var(--acc3);color:var(--acc3);background:rgba(255,107,107,.1)}
+
+.answer-block{
+  display:none;border-top:1px solid var(--border);
+  padding:14px 16px;background:rgba(124,110,245,.03);
+  animation:fadeIn .2s ease;
+}
+.answer-block.open{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.alabel{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--acc);margin-bottom:8px}
+.answer-text{font-size:.88rem;line-height:1.7}
+.tip-strip{
+  margin-top:10px;padding:8px 12px;
+  background:rgba(0,201,167,.06);border-left:3px solid var(--acc2);
+  border-radius:0 6px 6px 0;font-size:.8rem;color:var(--t2);
 }
 
-/* welcome */
-.welcome{
-  text-align:center;padding:2rem 1rem;color:var(--t3);
-  font-family:var(--mono);font-size:0.78rem;line-height:1.8;
-}
-.welcome-big{font-size:1.5rem;margin-bottom:.5rem;display:block}
+.empty{text-align:center;padding:3rem;color:var(--t3);font-family:var(--mono);font-size:.85rem}
 
-/* scrollbar */
+/* stat bar */
+.stat-bar{
+  display:flex;gap:16px;align-items:center;
+  margin-bottom:18px;padding:10px 14px;
+  background:var(--s1);border:1px solid var(--border);border-radius:var(--r);
+  font-family:var(--mono);font-size:.72rem;color:var(--t2);
+}
+.stat-num{font-size:1.1rem;font-weight:700;display:block}
+.stat-num.g{color:#4ade80}.stat-num.r{color:var(--acc3)}
+
+/* tr tooltip */
+[data-tr]{border-bottom:1px dashed var(--t3);cursor:help;position:relative}
+[data-tr]::after{
+  content:attr(data-tr);position:absolute;bottom:calc(100% + 6px);left:50%;
+  transform:translateX(-50%);background:var(--s2);border:1px solid var(--acc2);
+  color:var(--acc2);font-size:.68rem;padding:.25rem .6rem;border-radius:5px;
+  white-space:nowrap;font-family:var(--mono);pointer-events:none;opacity:0;
+  transition:opacity .15s;z-index:10;
+}
+[data-tr]:hover::after{opacity:1}
+[data-tr]:hover{color:var(--acc2)}
+
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-::-webkit-scrollbar-track{background:transparent}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="logo">DM <em>Study</em></div>
-  <div class="mode-pills">
-    <button class="pill active" data-mode="sql">SQL</button>
-    <button class="pill" data-mode="concept">Concept</button>
-    <button class="pill" data-mode="vrij">Vrij schrijven</button>
+<div class="header">
+  <div class="logo">DM <span>Oefenen</span></div>
+  <div class="filters" id="filters"></div>
+  <div class="hdr-right">
+    <div class="progress-wrap">
+      <div class="pbar-label"><span id="pl">0 / 0</span><span id="pp">0%</span></div>
+      <div class="pbar"><div class="pbar-fill" id="pf" style="width:0%"></div></div>
+    </div>
   </div>
-  <span class="kb-hint">Tab = autocomplete &nbsp;·&nbsp; Ctrl+Enter = analyseer</span>
 </div>
 
-<div class="workspace">
-  <!-- LEFT: editor -->
-  <div class="editor-pane">
-    <div class="editor-header">
-      <span class="editor-label" id="editor-label">SQL Editor</span>
-      <select class="topic-select" id="topic-select" onchange="onTopicChange()">
-        <option value="">— kies onderwerp —</option>
-        <option value="select">SELECT / WHERE / JOIN</option>
-        <option value="window">Window Functions</option>
-        <option value="groupby">GROUP BY / HAVING / ROLLUP</option>
-        <option value="subquery">Subqueries / EXISTS / IN</option>
-        <option value="cte">CTE / WITH RECURSIVE</option>
-        <option value="ddl">DDL — CREATE / ALTER</option>
-        <option value="transaction">Transacties / ACID</option>
-        <option value="procedure">Procedures / Triggers</option>
-        <option value="isolation">Isolatieniveaus</option>
-        <option value="replication">Replicatie / Backup</option>
-      </select>
-    </div>
-    <div class="editor-wrap">
-      <textarea class="code-area" id="editor"
-        placeholder="Schrijf hier je SQL of gedachten...&#10;&#10;Voorbeelden:&#10;  SELECT ...&#10;  WITH RECURSIVE ...&#10;  CREATE TABLE ...&#10;&#10;De companion denkt met je mee →"
-        spellcheck="false"></textarea>
-      <div class="autocomplete" id="autocomplete"></div>
-    </div>
-    <div class="status-bar">
-      <span id="status-text">Klaar</span>
-      <span style="margin-left:auto" id="char-count">0 tekens</span>
-    </div>
+<div class="main">
+  <div class="stat-bar" id="statbar" style="display:none">
+    <div><span class="stat-num g" id="sg">0</span>goed</div>
+    <div><span class="stat-num r" id="sr">0</span>fout</div>
+    <div style="margin-left:auto;color:var(--t3)">klik ✓ / ✗ om bij te houden</div>
   </div>
-
-  <!-- RIGHT: companion -->
-  <div class="companion-pane">
-    <div class="companion-header">
-      <div class="comp-dot"></div>
-      <span>Study Companion</span>
-    </div>
-    <div class="companion-body" id="companion-body">
-      <div class="welcome" id="welcome">
-        <span class="welcome-big">👆</span>
-        Begin te typen in de editor.<br>
-        Kies een onderwerp voor gerichte hints.<br>
-        <br>
-        De companion denkt met je mee —<br>
-        stelt vragen, geeft syntaxhints,<br>
-        waarschuwt voor valkuilen.
-      </div>
-    </div>
-    <div class="think-wrap">
-      <input class="think-input" id="think-input" placeholder="Typ een begrip of vraag... (bv: 'wat is phantom read')" />
-      <div class="think-reply" id="think-reply"></div>
-    </div>
-  </div>
+  <div id="cards"></div>
 </div>
 
 <script>
-/* ═══════════════════════════════════════
-   DATA: SQL keywords + functions
-═══════════════════════════════════════ */
-const SQL_KW = [
-  {w:'SELECT',t:'kw',h:'Kolommen ophalen'},
-  {w:'FROM',t:'kw',h:'Brontabel'},
-  {w:'WHERE',t:'kw',h:'Rijen filteren'},
-  {w:'GROUP BY',t:'kw',h:'Rijen groeperen'},
-  {w:'HAVING',t:'kw',h:'Groepen filteren (na GROUP BY)'},
-  {w:'ORDER BY',t:'kw',h:'Sorteren'},
-  {w:'LIMIT',t:'kw',h:'Aantal rijen beperken'},
-  {w:'JOIN',t:'kw',h:'Tabellen samenvoegen'},
-  {w:'INNER JOIN',t:'kw',h:'Enkel overeenkomende rijen'},
-  {w:'LEFT JOIN',t:'kw',h:'Alle rijen uit links + matches'},
-  {w:'LEFT OUTER JOIN',t:'kw',h:'= LEFT JOIN'},
-  {w:'CROSS JOIN',t:'kw',h:'Cartesiaans product (N×M rijen)'},
-  {w:'ON',t:'kw',h:'Join-conditie'},
-  {w:'AS',t:'kw',h:'Alias'},
-  {w:'DISTINCT',t:'kw',h:'Dubbele rijen verwijderen'},
-  {w:'UNION',t:'kw',h:'Resultaten combineren (uniek)'},
-  {w:'UNION ALL',t:'kw',h:'Resultaten combineren (met duplicaten)'},
-  {w:'INTERSECT',t:'kw',h:'Gemeenschappelijke rijen'},
-  {w:'EXCEPT',t:'kw',h:'Verschil (zoals NOT IN maar set-based)'},
-  {w:'INSERT INTO',t:'kw',h:'Rij invoegen'},
-  {w:'VALUES',t:'kw',h:'Waarden voor INSERT'},
-  {w:'UPDATE',t:'kw',h:'Rijen bijwerken'},
-  {w:'SET',t:'kw',h:'Nieuwe waarden bij UPDATE'},
-  {w:'DELETE FROM',t:'kw',h:'Rijen verwijderen'},
-  {w:'CREATE TABLE',t:'kw',h:'Tabel aanmaken'},
-  {w:'ALTER TABLE',t:'kw',h:'Tabel aanpassen'},
-  {w:'DROP TABLE',t:'kw',h:'Tabel verwijderen'},
-  {w:'PRIMARY KEY',t:'kw',h:'Unieke identifier'},
-  {w:'FOREIGN KEY',t:'kw',h:'Referentiële integriteit'},
-  {w:'REFERENCES',t:'kw',h:'Verwijs naar andere tabel'},
-  {w:'ON DELETE CASCADE',t:'kw',h:'Kind-rijen automatisch verwijderen'},
-  {w:'ON DELETE SET NULL',t:'kw',h:'FK-kolom op NULL zetten'},
-  {w:'ON DELETE RESTRICT',t:'kw',h:'Verwijdering weigeren als kinderen bestaan'},
-  {w:'NOT NULL',t:'kw',h:'Verplicht veld'},
-  {w:'UNIQUE',t:'kw',h:'Geen duplicaten'},
-  {w:'CHECK',t:'kw',h:'Domeinbeperking'},
-  {w:'DEFAULT',t:'kw',h:'Standaardwaarde'},
-  {w:'WITH',t:'kw',h:'CTE (Common Table Expression)'},
-  {w:'WITH RECURSIVE',t:'kw',h:'Recursieve CTE — voor hiërarchieën'},
-  {w:'OVER',t:'kw',h:'Window function context'},
-  {w:'PARTITION BY',t:'kw',h:'Window: reset per groep'},
-  {w:'ROWS BETWEEN',t:'kw',h:'Window: frame definitie'},
-  {w:'UNBOUNDED PRECEDING',t:'kw',h:'Vanaf het begin van de partitie'},
-  {w:'CURRENT ROW',t:'kw',h:'Tot huidige rij'},
-  {w:'ROLLUP',t:'kw',h:'Hiërarchische subtotalen'},
-  {w:'CUBE',t:'kw',h:'Alle combinaties subtotalen'},
-  {w:'GROUPING SETS',t:'kw',h:'Eigen combinaties subtotalen'},
-  {w:'FILTER',t:'kw',h:'Aggregaat beperken: COUNT(*) FILTER (WHERE ...)'},
-  {w:'CASE WHEN',t:'kw',h:'Voorwaardelijke logica'},
-  {w:'THEN',t:'kw',h:'Bij CASE WHEN'},
-  {w:'ELSE',t:'kw',h:'Standaard bij CASE'},
-  {w:'END',t:'kw',h:'Sluit CASE af'},
-  {w:'NULL',t:'kw',h:'Ontbrekende waarde'},
-  {w:'IS NULL',t:'kw',h:'Controleer op NULL'},
-  {w:'IS NOT NULL',t:'kw',h:'Niet leeg'},
-  {w:'NOT IN',t:'kw',h:'Opgepast: NULL in subquery → lege resultaatset!'},
-  {w:'NOT EXISTS',t:'kw',h:'Veiliger alternatief voor NOT IN'},
-  {w:'EXISTS',t:'kw',h:'Controleert of subquery rijen teruggeeft'},
-  {w:'IN',t:'kw',h:'Waarde in lijst of subquery'},
-  {w:'BETWEEN',t:'kw',h:'Inclusief bereik: BETWEEN a AND b'},
-  {w:'LIKE',t:'kw',h:'Patroonmatch: % = meerdere, _ = één teken'},
-  {w:'ILIKE',t:'kw',h:'Case-insensitief LIKE (PostgreSQL)'},
-  {w:'CAST',t:'kw',h:'Typconversie: CAST(x AS INT)'},
-  {w:'COALESCE',t:'fn',h:'Eerste niet-NULL waarde'},
-  {w:'NULLIF',t:'fn',h:'NULL als twee waarden gelijk zijn'},
-  {w:'BEGIN',t:'kw',h:'Start transactie'},
-  {w:'COMMIT',t:'kw',h:'Wijzigingen vastlegen'},
-  {w:'ROLLBACK',t:'kw',h:'Wijzigingen ongedaan maken'},
-  {w:'SAVEPOINT',t:'kw',h:'Tussenpunt in transactie'},
-  {w:'ROLLBACK TO SAVEPOINT',t:'kw',h:'Gedeeltelijk terugdraaien'},
-  {w:'SET TRANSACTION ISOLATION LEVEL',t:'kw',h:'Isolatieniveau instellen'},
-  {w:'READ COMMITTED',t:'kw',h:'Standaard: geen dirty reads'},
-  {w:'REPEATABLE READ',t:'kw',h:'Geen dirty/non-repeatable reads'},
-  {w:'SERIALIZABLE',t:'kw',h:'Hoogste isolatie: geen phantom reads'},
-  {w:'GRANT',t:'kw',h:'Rechten toekennen'},
-  {w:'REVOKE',t:'kw',h:'Rechten intrekken'},
-  {w:'CREATE ROLE',t:'kw',h:'Nieuwe rol aanmaken'},
-  {w:'CREATE VIEW',t:'kw',h:'Virtuele tabel als query'},
-  {w:'CREATE MATERIALIZED VIEW',t:'kw',h:'Fysiek opgeslagen queryresultaat'},
-  {w:'REFRESH MATERIALIZED VIEW',t:'kw',h:'Materialized view bijwerken'},
-  {w:'CREATE OR REPLACE FUNCTION',t:'kw',h:'Functie aanmaken of vervangen'},
-  {w:'CREATE OR REPLACE PROCEDURE',t:'kw',h:'Procedure aanmaken'},
-  {w:'RETURNS TRIGGER',t:'kw',h:'Triggerfunctie retourneert TRIGGER type'},
-  {w:'LANGUAGE plpgsql',t:'kw',h:'PL/pgSQL procedurele taal'},
-  {w:'DECLARE',t:'kw',h:'Variabelen declareren in PL/pgSQL'},
-  {w:'RAISE INFO',t:'kw',h:'Informatief bericht (geen fout)'},
-  {w:'RAISE EXCEPTION',t:'kw',h:'Fout gooien (breekt transactie)'},
-  {w:'EXPLAIN ANALYZE',t:'kw',h:'Query uitvoeringsplan + werkelijke tijden'},
-  // functions
-  {w:'COUNT',t:'fn',h:'Aantal rijen tellen'},
-  {w:'SUM',t:'fn',h:'Optellen'},
-  {w:'AVG',t:'fn',h:'Gemiddelde'},
-  {w:'MIN',t:'fn',h:'Minimum'},
-  {w:'MAX',t:'fn',h:'Maximum'},
-  {w:'RANK',t:'fn',h:'Rang met gaten bij ties'},
-  {w:'DENSE_RANK',t:'fn',h:'Rang zonder gaten'},
-  {w:'ROW_NUMBER',t:'fn',h:'Altijd unieke rijnummer'},
-  {w:'LAG',t:'fn',h:'Waarde van vorige rij'},
-  {w:'LEAD',t:'fn',h:'Waarde van volgende rij'},
-  {w:'FIRST_VALUE',t:'fn',h:'Eerste waarde in window'},
-  {w:'LAST_VALUE',t:'fn',h:'Laatste waarde in window'},
-  {w:'NTH_VALUE',t:'fn',h:'N-de waarde in window'},
-  {w:'NTILE',t:'fn',h:'Verdeelt in N gelijke groepen'},
-  {w:'STRING_AGG',t:'fn',h:'Strings samenvoegen: STRING_AGG(col, \',\')'},
-  {w:'NOW',t:'fn',h:'Huidige datum+tijd'},
-  {w:'CURRENT_DATE',t:'fn',h:'Huidige datum'},
-  {w:'EXTRACT',t:'fn',h:'Onderdeel van datum: EXTRACT(YEAR FROM col)'},
-  {w:'TO_CHAR',t:'fn',h:'Datum naar tekst: TO_CHAR(col, \'YYYY-MM-DD\')'},
-  {w:'LOWER',t:'fn',h:'Naar kleine letters'},
-  {w:'UPPER',t:'fn',h:'Naar hoofdletters'},
-  {w:'TRIM',t:'fn',h:'Witruimte verwijderen'},
-  {w:'CONCAT',t:'fn',h:'Teksten samenvoegen'},
-  {w:'SUBSTRING',t:'fn',h:'Deel van tekst'},
-  {w:'LENGTH',t:'fn',h:'Lengte van tekst'},
-  // columns from ERD
-  {w:'shipment_id',t:'cl',h:'PK Shipment'},
-  {w:'leg_id',t:'cl',h:'PK Leg'},
-  {w:'assignment_id',t:'cl',h:'PK Assignment'},
-  {w:'container_id',t:'cl',h:'PK Container'},
-  {w:'parent_leg_id',t:'cl',h:'FK → Leg (zelf-referentie)'},
-  {w:'origin_city',t:'cl',h:'Shipment: vertrekstad'},
-  {w:'destination_city',t:'cl',h:'Shipment: aankomststad'},
-  {w:'distance_km',t:'cl',h:'Leg: afstand in km'},
-  {w:'start_date',t:'cl',h:'Leg: vertrekdatum'},
-  {w:'load_date',t:'cl',h:'Assignment: laaddatum'},
-  {w:'SPELERSNR',t:'cl',h:'PK Spelers (tennis DB)'},
-  {w:'BEDRAG',t:'cl',h:'Boetes: bedrag'},
-  {w:'BETALINGSNR',t:'cl',h:'PK Boetes'},
-];
+/* ══════════════════════════════════════════════════════════
+   ALLE VRAGEN — rechtstreeks uit de 2 PDF's
+══════════════════════════════════════════════════════════ */
+const QS = [
 
-/* ═══════════════════════════════════════
-   DATA: Concept hints per topic
-═══════════════════════════════════════ */
-const TOPIC_HINTS = {
-  select:[
-    {type:'concept',icon:'🔑',t:'Volgorde van clausules',b:'Logische volgorde: <code>SELECT → FROM → JOIN → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT</code>. De <em>uitvoering</em> is omgekeerd: FROM eerst, SELECT pas op het einde.'},
-    {type:'warning',icon:'⚠️',t:'NULL-valkuil',b:'<code>WHERE kolom = NULL</code> werkt <strong>niet</strong>. Gebruik altijd <code>IS NULL</code> of <code>IS NOT NULL</code>.'},
-    {type:'tip',icon:'💡',t:'JOIN types',b:'LEFT JOIN: alle rijen uit links, ook zonder match. INNER JOIN: enkel matches. CROSS JOIN: elk met elk → N×M rijen.'},
-  ],
-  window:[
-    {type:'syntax',icon:'📐',t:'Window function structuur',b:'<code>FUNCTIE() OVER (PARTITION BY col ORDER BY col ROWS BETWEEN ...)</code><br>PARTITION BY en ORDER BY zijn allebei optioneel.'},
-    {type:'warning',icon:'⚠️',t:'GROUP BY vs OVER',b:'Met <code>GROUP BY</code> verdwijnen individuele rijen. Met <code>OVER</code> blijven ze behouden — je krijgt aggregaatwaarde <em>én</em> de rij.'},
-    {type:'tip',icon:'💡',t:'Cumulatieve som',b:'<code>SUM(col) OVER (ORDER BY datum)</code> = lopende som. Voeg <code>PARTITION BY city</code> toe om per groep te resetten.'},
-  ],
-  groupby:[
-    {type:'concept',icon:'🔑',t:'ROLLUP vs CUBE',b:'<code>ROLLUP(a,b)</code>: subtotalen hiërarchisch (a+b, a, totaal).<br><code>CUBE(a,b)</code>: alle combinaties.<br><code>GROUPING SETS</code>: zelf kiezen.'},
-    {type:'warning',icon:'⚠️',t:'HAVING vs WHERE',b:'<code>WHERE</code> filtert rijen <em>voor</em> aggregatie. <code>HAVING</code> filtert <em>na</em> aggregatie. Je kan geen alias uit SELECT gebruiken in WHERE.'},
-    {type:'tip',icon:'💡',t:'FILTER clausule',b:'<code>COUNT(*) FILTER (WHERE status = \'Arrived\')</code> — conditionele aggregatie zonder CASE WHEN.'},
-  ],
-  subquery:[
-    {type:'warning',icon:'⚠️',t:'NOT IN + NULL gevaar',b:'Als de subquery één <code>NULL</code> bevat, geeft <code>NOT IN</code> altijd een <strong>lege resultaatset</strong>. Gebruik liever <code>NOT EXISTS</code>.'},
-    {type:'tip',icon:'💡',t:'Semi Join',b:'<code>EXISTS</code> en <code>IN</code> produceren intern een "Semi Join": zodra één match gevonden is, stopt de zoektocht. Dat is vaak sneller dan een gewone JOIN.'},
-    {type:'syntax',icon:'📐',t:'NOT EXISTS template',b:'<code>WHERE NOT EXISTS (SELECT 1 FROM t2 WHERE t2.fk = t1.pk AND t2.col = ...)</code>'},
-  ],
-  cte:[
-    {type:'syntax',icon:'📐',t:'Recursieve CTE structuur',b:'<code>WITH RECURSIVE naam AS (<br>&nbsp;&nbsp;-- basisgeval<br>&nbsp;&nbsp;SELECT ...<br>&nbsp;&nbsp;UNION ALL<br>&nbsp;&nbsp;-- recursieve stap<br>&nbsp;&nbsp;SELECT ... JOIN naam ON ...<br>)<br>SELECT * FROM naam;</code>'},
-    {type:'tip',icon:'💡',t:'Gebruik',b:'Recursieve CTEs zijn ideaal voor hiërarchische data: organisatiebomen, parent_leg_id structuren, categorieën met sub-categorieën.'},
-    {type:'warning',icon:'⚠️',t:'Oneindige lus',b:'Vergeet niet een stopconditie! PostgreSQL heeft standaard een dieptelimiet, maar je kan ook zelf een <code>depth</code> kolom bijhouden en filteren.'},
-  ],
-  ddl:[
-    {type:'syntax',icon:'📐',t:'ON DELETE opties',b:'<code>CASCADE</code> — kind verwijderen<br><code>SET NULL</code> — FK op NULL<br><code>RESTRICT</code> — verwijdering weigeren (onmiddellijk)<br><code>NO ACTION</code> — verwijdering weigeren (einde transactie)'},
-    {type:'tip',icon:'💡',t:'PRIMARY KEY',b:'<code>PRIMARY KEY</code> = <code>UNIQUE</code> + <code>NOT NULL</code>. Een tabel kan maar één PK hebben, maar meerdere UNIQUE constraints.'},
-    {type:'warning',icon:'⚠️',t:'Hoofdletters & kolomnamen',b:'PostgreSQL maakt kolomnamen lowercase tenzij je aanhalingstekens gebruikt. <code>shipment_id</code> ≠ <code>"shipment_id"</code> (quote) ≠ <code>Shipment_Id</code> zonder quotes.'},
-  ],
-  transaction:[
-    {type:'concept',icon:'🔑',t:'ACID',b:'<strong>A</strong>tomicity: alles of niets.<br><strong>C</strong>onsistency: DB blijft geldig.<br><strong>I</strong>solation: transacties beïnvloeden elkaar niet.<br><strong>D</strong>urability: na COMMIT is het permanent.'},
-    {type:'tip',icon:'💡',t:'SAVEPOINT',b:'Na <code>ROLLBACK TO SAVEPOINT s1</code> is de transactie nog actief! Je kan nog steeds verder werken of de hele transactie committen. Pas ROLLBACK (zonder SAVEPOINT) beëindigt alles.'},
-    {type:'warning',icon:'⚠️',t:'RAISE EXCEPTION vs RAISE INFO',b:'<code>RAISE EXCEPTION</code> breekt de transactie. <code>RAISE INFO</code> toont een bericht maar de transactie loopt door. De vraag zegt "mag geen fout geven" → gebruik RAISE INFO.'},
-  ],
-  procedure:[
-    {type:'syntax',icon:'📐',t:'Procedure structuur',b:'<code>CREATE OR REPLACE PROCEDURE naam(param TYPE)<br>LANGUAGE plpgsql AS $$<br>DECLARE v_var TYPE;<br>BEGIN<br>&nbsp;&nbsp;-- logica<br>EXCEPTION WHEN OTHERS THEN<br>&nbsp;&nbsp;RAISE INFO \'Fout: %\', SQLERRM;<br>END;<br>$$;</code>'},
-    {type:'tip',icon:'💡',t:'BEFORE vs AFTER trigger',b:'<code>BEFORE</code>: kan rij aanpassen of annuleren (return NULL = annuleer). <code>AFTER</code>: voor side effects zoals logging of cascade-updates.'},
-    {type:'concept',icon:'🔑',t:'NEW vs OLD',b:'In een trigger-functie: <code>NEW</code> = de nieuwe rij (bij INSERT/UPDATE). <code>OLD</code> = de oude rij (bij UPDATE/DELETE).'},
-  ],
-  isolation:[
-    {type:'concept',icon:'🔑',t:'Neveneffecten per niveau',b:'READ UNCOMMITTED → Dirty Read mogelijk<br>READ COMMITTED → Non-Repeatable Read mogelijk<br>REPEATABLE READ → Phantom Read mogelijk<br>SERIALIZABLE → Geen van alle'},
-    {type:'warning',icon:'⚠️',t:'PostgreSQL default',b:'PostgreSQL default = <code>READ COMMITTED</code>. Dirty reads zijn dus al vermeden. Phantom reads zijn pas vermeden bij SERIALIZABLE.'},
-    {type:'tip',icon:'💡',t:'Phantom Read vermijden',b:'Gebruik <code>SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;</code> of <code>REPEATABLE READ</code> vóór de eerste query in je transactie.'},
-  ],
-  replication:[
-    {type:'concept',icon:'🔑',t:'Fysiek vs Logisch',b:'<strong>Fysiek</strong>: kopieert WAL byte-voor-byte → exacte kopie van cluster.<br><strong>Logisch</strong>: repliceert per tabel/rij/kolom → flexibel → kan tussen versies.'},
-    {type:'tip',icon:'💡',t:'PUBLICATION + SUBSCRIPTION',b:'Op de bron: <code>CREATE PUBLICATION mijn_pub FOR TABLE shipment, leg;</code><br>Op de replica: <code>CREATE SUBSCRIPTION mijn_sub CONNECTION \'...\' PUBLICATION mijn_pub;</code>'},
-    {type:'warning',icon:'⚠️',t:'Hot vs Cold Backup',b:'Hot backup = database draait (pg_basebackup). Cold backup = database is gestopt.'},
-  ],
+/* ─── DEMO-EXAMEN: Stellingen ─── */
+{
+  id:1, tags:['stelling'],
+  src:'Demo-examen',
+  q:`<span data-tr="Yabancı anahtarlar">FKs (vreemde sleutels)</span> zijn een vorm van <strong>noodzakelijke redundantie</strong> in een <span data-tr="ilişkisel model">relationeel model</span>.`,
+  qtype:'waar/vals',
+  hint:`Wat betekent "redundantie" precies? Slaat een FK de volledige data opnieuw op, of enkel een verwijzing?`,
+  a:`<strong>Vals.</strong><br>Een FK slaat alleen een <em>sleutelwaarde</em> op — geen kopie van de data. Redundantie betekent dat dezelfde data op meerdere plaatsen staat. FKs zorgen voor referentiële integriteit, niet voor duplicatie.`,
+  tip:`Onthoud: FK = integriteit. Redundantie = dezelfde data meerdere keren opslaan.`
+},
+{
+  id:2, tags:['stelling'],
+  src:'Demo-examen',
+  q:`<span data-tr="Mantıksal replikasyon">Logische replicatie</span> kan enkel voor de ganse databank.`,
+  qtype:'waar/vals',
+  hint:`Wat is het verschil tussen logische en fysieke replicatie? Welke is selectiever?`,
+  a:`<strong>Vals.</strong><br>Logische replicatie kan per tabel of zelfs per rij worden geconfigureerd. Dat is net het grote voordeel t.o.v. fysieke replicatie, die de volledige cluster byte-voor-byte kopieert.`,
+  tip:`Fysiek = alles. Logisch = selectief (tabel, rij, kolom).`
+},
+
+/* ─── OEFENEXAMEN: Stellingen ─── */
+{
+  id:3, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`In een <span data-tr="dağıtık sistem">gedistribueerd systeem</span> is het wiskundig mogelijk om Perfecte Consistentie, Hoge Beschikbaarheid en <span data-tr="bölünme toleransı">Partition Tolerance</span> gelijktijdig te bereiken bij gebruik van een moderne PostgreSQL-cluster.`,
+  qtype:'waar/onwaar',
+  hint:`Herinner je het CAP-theorema. Hoeveel van de drie eigenschappen kan je tegelijk garanderen?`,
+  a:`<strong>Onwaar.</strong><br>Dit is het CAP-theorema (Brewer, 2000): in een gedistribueerd systeem kan je maximaal <strong>2 van de 3</strong> eigenschappen tegelijk garanderen. Je moet altijd een trade-off maken.`,
+  tip:`CAP = Consistency, Availability, Partition Tolerance → kies 2 van 3.`
+},
+{
+  id:4, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`Het gebruik van <span data-tr="hazırlanmış ifadeler">Prepared Statements</span> is een primaire verdediging tegen <span data-tr="SQL enjeksiyonu">SQL-injectie</span> omdat de querylogica wordt gescheiden van de data.`,
+  qtype:'waar/onwaar',
+  hint:`Wat gebeurt er met de inputparameters bij een Prepared Statement? Worden ze geïnterpreteerd als SQL-code?`,
+  a:`<strong>Waar.</strong><br>Bij Prepared Statements wordt de SQL-structuur eerst geparsed zonder data. Daarna worden parameters afzonderlijk meegegeven en nooit als SQL-code geïnterpreteerd — injectie is daardoor onmogelijk.`,
+  tip:`Parameterwaarden worden altijd als data behandeld, nooit als SQL-instructie.`
+},
+{
+  id:5, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`Een <code>ACCESS SHARE</code>-lock op een tabel blokkeert andere sessies om een <code>SELECT</code> uit te voeren op diezelfde tabel.`,
+  qtype:'waar/onwaar',
+  hint:`ACCESS SHARE is de zwakste lock. Welke lock blokkeert SELECT? (hint: het is de zwaarste)`,
+  a:`<strong>Onwaar.</strong><br>ACCESS SHARE is de zwakste lock en is compatibel met alle andere locks behalve ACCESS EXCLUSIVE. Meerdere sessies kunnen gelijktijdig een ACCESS SHARE-lock houden. Enkel <code>ACCESS EXCLUSIVE</code> (bv. bij DROP TABLE) blokkeert SELECT.`,
+  tip:`ACCESS SHARE blokkeert enkel ACCESS EXCLUSIVE. SELECT blokkeert dus bijna niets.`
+},
+{
+  id:6, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`Een <code>RANK()</code>-functie zal altijd opeenvolgende gehele getallen retourneren (1, 2, 3…) zelfs wanneer er gelijke waarden (<span data-tr="bağlar">ties</span>) in de data voorkomen.`,
+  qtype:'waar/onwaar',
+  hint:`Wat doet RANK() als twee rijen dezelfde waarde hebben? En welke functie geeft WEL altijd opeenvolgende getallen?`,
+  a:`<strong>Onwaar.</strong><br>Bij gelijke waarden geeft <code>RANK()</code> hetzelfde getal aan beide rijen, maar slaat de volgende rang over.<br>Voorbeeld: twee rijen met rang 2 → de volgende krijgt rang <strong>4</strong>, niet 3.<br>Gebruik <code>DENSE_RANK()</code> voor aaneensluitende nummers.`,
+  tip:`RANK: 1,2,2,4 — DENSE_RANK: 1,2,2,3 — ROW_NUMBER: 1,2,3,4`
+},
+{
+  id:7, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`Een "<span data-tr="sıcak yedekleme">Hot Backup</span>" vereist dat de database volledig wordt afgesloten om gegevensconsistentie tijdens het kopiëren te garanderen.`,
+  qtype:'waar/onwaar',
+  hint:`Hot backup vs cold backup — wat is het fundamentele verschil?`,
+  a:`<strong>Onwaar.</strong><br>Een <em>Hot Backup</em> wordt genomen terwijl de database actief is (online). Een <em>Cold Backup</em> vereist afsluiting. PostgreSQL ondersteunt hot backups via WAL-archivering (<code>pg_basebackup</code>).`,
+  tip:`Hot = online (DB draait). Cold = offline (DB gestopt).`
+},
+{
+  id:8, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`In het isolatieniveau <code>READ COMMITTED</code> kan een transactie gegevenswijzigingen zien die door andere transacties zijn vastgelegd, zelfs als die transacties later zijn gestart.`,
+  qtype:'waar/onwaar',
+  hint:`Bij READ COMMITTED: wanneer leest een query de data? Per statement of per transactie?`,
+  a:`<strong>Waar.</strong><br>Bij READ COMMITTED ziet elke SQL-instructie de meest recente <em>gecommitte</em> data op het moment van uitvoering. Als transactie B na A start maar eerder commit, ziet A die wijzigingen bij haar volgende query. Dit kan leiden tot <strong>Non-Repeatable Reads</strong>.`,
+  tip:`READ COMMITTED = per statement een nieuwe snapshot. Gevolg: Non-Repeatable Read mogelijk.`
+},
+{
+  id:9, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`Een <span data-tr="indeks">index</span> versnelt altijd <code>INSERT</code>- en <code>UPDATE</code>-operaties omdat de database de locatie van de gegevens sneller kan vinden.`,
+  qtype:'waar/onwaar',
+  hint:`Een index helpt bij lezen. Maar wat moet er bij een INSERT of UPDATE extra gebeuren?`,
+  a:`<strong>Onwaar.</strong><br>Een index <em>vertraagt</em> INSERT en UPDATE: bij elke schrijfoperatie moet de index ook bijgewerkt worden. Indexen versnellen SELECT-queries, maar hebben een overhead bij schrijfoperaties.`,
+  tip:`Index = sneller lezen (SELECT), trager schrijven (INSERT/UPDATE/DELETE).`
+},
+{
+  id:10, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`In een "Primary-Replica"-opstelling wordt de replica-node doorgaans gebruikt om schrijfintensieve workloads af te handelen en zo de primary te ontlasten.`,
+  qtype:'waar/onwaar',
+  hint:`Welke node ontvangt schrijfoperaties in een Primary-Replica setup? En waarvoor dient de replica?`,
+  a:`<strong>Onwaar.</strong><br>Schrijfoperaties gaan altijd naar de <strong>primary</strong>. De replica wordt gebruikt voor leesintensieve workloads (<em>read scaling</em>). Schrijven naar een replica zou conflicten veroorzaken.`,
+  tip:`Primary = lezen + schrijven. Replica = alleen lezen (read-only).`
+},
+{
+  id:11, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`Een <span data-tr="tetikleyici">TRIGGER</span> kan zo worden gedefinieerd dat deze vóór of ná een specifieke DML-instructie (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>) wordt uitgevoerd.`,
+  qtype:'waar/onwaar',
+  hint:`Welke timing-opties bestaan er voor triggers? En is er nog een derde optie naast BEFORE en AFTER?`,
+  a:`<strong>Waar.</strong><br>In PostgreSQL kies je: <code>BEFORE</code> (voor de operatie — kan de rij aanpassen of annuleren door NULL terug te geven), <code>AFTER</code> (na de operatie — voor side effects), en <code>INSTEAD OF</code> (op views).`,
+  tip:`BEFORE: kan operatie stoppen (return NULL). AFTER: voor logging, cascades. INSTEAD OF: op views.`
+},
+{
+  id:12, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`De <code>UNION</code>-operator verwijdert automatisch dubbele rijen uit de gecombineerde resultaatset, terwijl <code>UNION ALL</code> dat niet doet.`,
+  qtype:'waar/onwaar',
+  hint:`Wat is het effect van UNION op duplicaten? En waarom zou je UNION ALL kiezen?`,
+  a:`<strong>Waar.</strong><br><code>UNION</code> verwijdert duplicaten (doet intern een DISTINCT). <code>UNION ALL</code> behoudt alle rijen inclusief duplicaten en is daardoor <em>sneller</em>.`,
+  tip:`Gebruik UNION ALL als je zeker weet dat er geen duplicaten zijn — het scheelt een sorteerstap.`
+},
+{
+  id:13, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`Een <span data-tr="materyalize edilmiş görünüm">MATERIALIZED VIEW</span> slaat het resultaat van een query fysiek op en moet worden vernieuwd om bijgewerkte gegevens uit de onderliggende tabellen te tonen.`,
+  qtype:'waar/onwaar',
+  hint:`Wat is het verschil met een gewone VIEW? En hoe vernieuw je een MATERIALIZED VIEW?`,
+  a:`<strong>Waar.</strong><br>Een MATERIALIZED VIEW slaat de queryresultaten fysiek op. Ze is snel bij raadplegen maar kan verouderd zijn. Vernieuwen via: <code>REFRESH MATERIALIZED VIEW naam;</code><br>Een gewone VIEW voert de query telkens opnieuw uit — altijd actueel, maar trager.`,
+  tip:`Weinig opslagruimte? Gebruik een gewone VIEW. Snelheid nodig? MATERIALIZED VIEW.`
+},
+{
+  id:14, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`Het <code>GRANT</code>-commando wordt gebruikt om te bepalen welke gebruikers toestemming hebben om specifieke acties zoals <code>SELECT</code> of <code>UPDATE</code> op een tabel uit te voeren.`,
+  qtype:'waar/onwaar',
+  hint:`Wat is het verschil tussen GRANT en REVOKE?`,
+  a:`<strong>Waar.</strong><br><code>GRANT SELECT ON tabel TO gebruiker;</code> geeft leesrecht. <code>REVOKE</code> neemt rechten terug. Dit is onderdeel van <em>privilege management</em> (RBAC) in SQL.`,
+  tip:`GRANT = rechten geven. REVOKE = rechten afnemen. Geen DELETE toekennen = gewoon niet GRANTen.`
+},
+{
+  id:15, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`In PostgreSQL wordt het <code>JSONB</code>-datatype opgeslagen als een ontlede binaire structuur, waardoor het <strong>trager</strong> te verwerken is dan het gewone <code>JSON</code>-teksttype.`,
+  qtype:'waar/onwaar',
+  hint:`JSONB = binary. JSON = tekst. Welke is sneller bij queries en indexering?`,
+  a:`<strong>Onwaar.</strong><br>JSONB is <em>sneller</em> voor queries en ondersteunt indexering, omdat het al geparsed is als binaire structuur. JSON-tekst moet elke keer opnieuw geparsed worden. JSONB is in de meeste gevallen de betere keuze.`,
+  tip:`JSONB = sneller lezen/query. JSON = exacte tekst bewaard, iets sneller bij schrijven.`
+},
+{
+  id:16, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`De clausule <code>OVER (PARTITION BY …)</code> reset de window-berekening telkens wanneer de waarde in de opgegeven kolom verandert.`,
+  qtype:'waar/onwaar',
+  hint:`Wat doet PARTITION BY precies? Vergelijk het met GROUP BY — wat is het verschil?`,
+  a:`<strong>Waar.</strong><br>PARTITION BY verdeelt de resultaatset in groepen. Elke groep wordt onafhankelijk berekend. Vergelijkbaar met GROUP BY, maar alle rijen blijven zichtbaar in het resultaat (geen samenvatting).`,
+  tip:`PARTITION BY herstart de window per groep, maar behoudt alle individuele rijen.`
+},
+{
+  id:17, tags:['stelling'],
+  src:'Oefenexamen',
+  q:`<span data-tr="Yabancı veri sarmalayıcıları">FDW's (Foreign Data Wrappers)</span> maken het mogelijk dat een PostgreSQL-database gegevens uit een extern, volledig ander databasesysteem kan opvragen alsof het een lokale tabel betreft.`,
+  qtype:'waar/onwaar',
+  hint:`Wat is het nut van een FDW? Welke externe bronnen kunnen aangekoppeld worden?`,
+  a:`<strong>Waar.</strong><br>Via FDW koppel je externe bronnen aan PostgreSQL: andere PostgreSQL-instanties (<code>postgres_fdw</code>), MySQL (<code>mysql_fdw</code>), CSV-bestanden (<code>file_fdw</code>), REST APIs, etc. De externe data verschijnt als een lokale "foreign table".`,
+  tip:`FDW = brug naar externe data. De data staat extern maar gedraagt zich als een lokale tabel.`
+},
+
+/* ─── DEMO-EXAMEN vraag 2: ACID ─── */
+{
+  id:20, tags:['theorie'],
+  src:'Demo-examen v2',
+  q:`Waarvoor staat <span data-tr="ACID kısaltması">ACID</span>? Leg duidelijk en volledig uit wat hiermee bedoeld wordt.`,
+  qtype:'open',
+  hint:`Probeer eerst zelf elk letter uit te schrijven. Wat garandeert elke eigenschap precies?`,
+  a:`<strong>A — Atomicity (Atoomgehalte):</strong><br>Een transactie is ondeelbaar. Alles slaagt of niets slaagt. Bij een fout halverwege worden alle wijzigingen teruggedraaid.<br><br>
+<strong>C — Consistency (Consistentie):</strong><br>De database gaat van één geldige toestand naar een andere. Alle constraints, regels en integriteit blijven gerespecteerd na elke transactie.<br><br>
+<strong>I — Isolation (Isolatie):</strong><br>Parallelle transacties beïnvloeden elkaar niet. Elke transactie werkt alsof ze de enige is — neveneffecten afhankelijk van het isolatieniveau.<br><br>
+<strong>D — Durability (Duurzaamheid):</strong><br>Na een COMMIT zijn de wijzigingen permanent opgeslagen, ook bij een systeemcrash of stroomonderbreking.`,
+  tip:`Ezelsbruggetje: "Alles Correct Is Duurzaam"`
+},
+
+/* ─── DEMO-EXAMEN vraag 3: Phantom Read ─── */
+{
+  id:21, tags:['theorie'],
+  src:'Demo-examen v3',
+  q:`Wat is een '<span data-tr="hayalet okuma">Phantom Read</span>'? Hoe kunnen we dit fenomeen vermijden? Geef een concreet voorbeeld. (ook SQL-code verwacht)`,
+  qtype:'open',
+  hint:`Een Phantom Read gaat over rijen die "verschijnen" of "verdwijnen". Welk isolatieniveau vermijdt dit? En wat is het verschil met een Non-Repeatable Read?`,
+  a:`Een <strong>Phantom Read</strong> treedt op wanneer transactie A dezelfde query tweemaal uitvoert en de tweede keer andere rijen ziet — niet omdat bestaande rijen gewijzigd zijn, maar omdat transactie B tussenin rijen <em>toevoegde of verwijderde</em>.
+<pre><span class="cm">-- Transactie A, eerste lezing:</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> orders <span class="kw">WHERE</span> bedrag > <span class="num">100</span>;
+<span class="cm">-- → 5 rijen</span>
+
+<span class="cm">-- Transactie B commit (tussenin):</span>
+<span class="kw">INSERT INTO</span> orders (bedrag) <span class="kw">VALUES</span> (<span class="num">150</span>);
+<span class="kw">COMMIT</span>;
+
+<span class="cm">-- Transactie A, tweede lezing (zelfde query):</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> orders <span class="kw">WHERE</span> bedrag > <span class="num">100</span>;
+<span class="cm">-- → 6 rijen  ← PHANTOM READ</span></pre>
+<strong>Vermijden:</strong>
+<pre><span class="kw">SET TRANSACTION ISOLATION LEVEL SERIALIZABLE</span>;
+<span class="cm">-- of:</span>
+<span class="kw">SET TRANSACTION ISOLATION LEVEL REPEATABLE READ</span>;</pre>`,
+  tip:`Phantom = nieuwe/verdwenen rijen. Non-Repeatable = gewijzigde waarden in bestaande rijen.`
+},
+
+/* ─── DEMO-EXAMEN vraag 4: code verbeteren ─── */
+{
+  id:22, tags:['sql'],
+  src:'Demo-examen v4',
+  q:`Verbeter de volgende code en leg uit wat er fout is:
+<pre>insert into Album values (a,b,c)
+
+SELECT *
+from chinook.Album
+where 't'=x;</pre>`,
+  qtype:'open',
+  hint:`Kijk naar: aanhalingstekens, puntkomma's, de volgorde van vergelijking in WHERE. Zijn a, b, c strings of kolomnamen?`,
+  a:`<strong>Fout 1:</strong> a, b, c zijn strings maar missen aanhalingstekens. String literals in SQL staan tussen <em>enkele</em> aanhalingstekens.<br>
+<strong>Fout 2:</strong> Ontbrekende puntkomma na het INSERT-statement.<br>
+<strong>Fout 3:</strong> <code>'t'=x</code> — de conventie is kolom aan de linkerkant, waarde aan de rechterkant. Werkt syntactisch, maar is verwarrend.
+<pre><span class="kw">INSERT INTO</span> Album <span class="kw">VALUES</span> (<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>);
+
+<span class="kw">SELECT</span> *
+<span class="kw">FROM</span> chinook.Album
+<span class="kw">WHERE</span> x = <span class="str">'t'</span>;</pre>`,
+  tip:`Elke SQL-instructie eindigt met een puntkomma. Strings = enkele aanhalingstekens. Conventie: kolom = waarde.`
+},
+
+/* ─── DEMO-EXAMEN vraag 5: tennis NOT IN / NOT EXISTS ─── */
+{
+  id:23, tags:['sql'],
+  src:'Demo-examen v5',
+  q:`Geef alle spelers die <strong>nog nooit een boete van 50 euro</strong> hebben gehad. (Tennis databank: tabellen <code>SPELERS</code> en <code>BOETES</code>)<br><br>Geef <strong>twee duidelijk verschillende</strong> query-strategieën.`,
+  qtype:'open',
+  hint:`Strategie 1: gebruik NOT IN met een subquery. Strategie 2: gebruik NOT EXISTS. Wat is het gevaar van NOT IN als de subquery NULLs bevat?`,
+  a:`<strong>Strategie 1: NOT IN</strong>
+<pre><span class="kw">SELECT</span> *
+<span class="kw">FROM</span> SPELERS
+<span class="kw">WHERE</span> SPELERSNR <span class="kw">NOT IN</span> (
+    <span class="kw">SELECT</span> SPELERSNR
+    <span class="kw">FROM</span> BOETES
+    <span class="kw">WHERE</span> BEDRAG = <span class="num">50</span>
+);</pre>
+<strong>Strategie 2: NOT EXISTS</strong>
+<pre><span class="kw">SELECT</span> s.*
+<span class="kw">FROM</span> SPELERS s
+<span class="kw">WHERE NOT EXISTS</span> (
+    <span class="kw">SELECT</span> <span class="num">1</span>
+    <span class="kw">FROM</span> BOETES b
+    <span class="kw">WHERE</span> b.SPELERSNR = s.SPELERSNR
+      <span class="kw">AND</span> b.BEDRAG = <span class="num">50</span>
+);</pre>
+<strong>Bonus — Strategie 3: LEFT JOIN + IS NULL</strong>
+<pre><span class="kw">SELECT</span> s.*
+<span class="kw">FROM</span> SPELERS s
+<span class="kw">LEFT JOIN</span> BOETES b
+  <span class="kw">ON</span> s.SPELERSNR = b.SPELERSNR
+  <span class="kw">AND</span> b.BEDRAG = <span class="num">50</span>
+<span class="kw">WHERE</span> b.BETALINGSNR <span class="kw">IS NULL</span>;</pre>`,
+  tip:`⚠️ NOT IN + NULL in subquery = altijd lege resultaatset! NOT EXISTS is immuun voor dit probleem.`
+},
+
+/* ─── DEMO-EXAMEN vraag 6: CROSS JOIN uitvoer ─── */
+{
+  id:24, tags:['sql','window'],
+  src:'Demo-examen v6',
+  q:`Gegeven de tabel <code>wk</code>:
+<pre>team    | goals | hematocrietgemiddelde
+Belgium |  36   | 47.00
+Japan   |   8   | 45.00
+Rusland |   8   | 53.00</pre>
+<strong>Deel 1:</strong> Geef de uitvoer van:
+<pre><span class="kw">SELECT</span> <span class="fn">count</span>(w.team), <span class="fn">min</span>(k.hematocrietgemiddelde)
+<span class="kw">FROM</span> wk w <span class="kw">CROSS JOIN</span> wk k
+<span class="kw">GROUP BY</span> w.goals;</pre>
+<strong>Deel 2:</strong> Geef een niet-triviale equivalente query.`,
+  qtype:'open',
+  hint:`CROSS JOIN = cartesiaans product → hoeveel rijen? Dan GROUP BY w.goals: hoeveel groepen zijn er? Wat is count(w.team) per groep? En min(k.hematocrietgemiddelde) geldt over alle k-rijen in de groep.`,
+  a:`<strong>Deel 1: Uitvoer</strong><br>
+CROSS JOIN: 3 × 3 = <strong>9 rijen</strong> totaal.<br>
+GROUP BY w.goals: 2 groepen (goals=36 en goals=8).<br>
+<br>
+Groep goals=<strong>36</strong>: w heeft 1 rij × 3 k-rijen = 3 gecombineerde rijen<br>
+→ count(w.team) = 3, min(k.hematocriet) = 45.00<br>
+<br>
+Groep goals=<strong>8</strong>: w heeft 2 rijen × 3 k-rijen = 6 gecombineerde rijen<br>
+→ count(w.team) = 6, min(k.hematocriet) = 45.00
+<pre>count | min
+------+-------
+    3 | 45.00
+    6 | 45.00</pre>
+<strong>Deel 2: Niet-triviale equivalente query</strong>
+<pre><span class="kw">SELECT</span>
+    (<span class="kw">SELECT COUNT</span>(*) <span class="kw">FROM</span> wk <span class="kw">WHERE</span> goals = w.goals) * (<span class="kw">SELECT COUNT</span>(*) <span class="kw">FROM</span> wk),
+    (<span class="kw">SELECT MIN</span>(hematocrietgemiddelde) <span class="kw">FROM</span> wk)
+<span class="kw">FROM</span> wk w
+<span class="kw">GROUP BY</span> w.goals;</pre>`,
+  tip:`CROSS JOIN met zichzelf en GROUP BY op één kant → count = (rijen met die goals) × (totaal rijen).`
+},
+
+/* ─── DEMO-EXAMEN vraag 7: DDL Leg + Assignment ─── */
+{
+  id:25, tags:['ddl'],
+  src:'Demo-examen v7',
+  q:`Schrijf de SQL-opdrachten om de tabellen <strong>Leg</strong> en <strong>Assignment</strong> aan te maken (Global Logistics Tracker ERD).<br><br>
+Vereisten:<br>
+• Bij verwijdering van een <code>Shipment</code> worden bijbehorende Legs <strong>automatisch verwijderd</strong><br>
+• Leg heeft ook een zelf-referentie op <code>parent_leg_id</code><br>
+• <code>assignment_id</code> is NOT NULL<br>
+• Exact de namen uit het ERD gebruiken (hoofdletters/kleine letters)`,
+  qtype:'open',
+  hint:`Welke constraint gebruik je voor automatisch verwijderen? Welke kolommen zijn FK's? Let op: parent_leg_id verwijst naar dezelfde tabel Leg.`,
+  a:`<pre><span class="kw">CREATE TABLE</span> Leg (
+    leg_id         <span class="kw">INT PRIMARY KEY</span>,
+    shipment_id    <span class="kw">INT</span>,
+    parent_leg_id  <span class="kw">INT</span>,
+    origin         <span class="kw">VARCHAR</span>,
+    destination    <span class="kw">VARCHAR</span>,
+    <span class="kw">CONSTRAINT</span> fk_leg_shipment
+        <span class="kw">FOREIGN KEY</span> (shipment_id)
+        <span class="kw">REFERENCES</span> Shipment(shipment_id)
+        <span class="kw">ON DELETE CASCADE</span>,
+    <span class="kw">CONSTRAINT</span> fk_leg_parent
+        <span class="kw">FOREIGN KEY</span> (parent_leg_id)
+        <span class="kw">REFERENCES</span> Leg(leg_id)
+);
+
+<span class="kw">CREATE TABLE</span> Assignment (
+    assignment_id  <span class="kw">INT NOT NULL PRIMARY KEY</span>,
+    leg_id         <span class="kw">INT</span>,
+    container_id   <span class="kw">INT</span>,
+    load_date      <span class="kw">DATE</span>,
+    <span class="kw">CONSTRAINT</span> fk_asgn_leg
+        <span class="kw">FOREIGN KEY</span> (leg_id)
+        <span class="kw">REFERENCES</span> Leg(leg_id),
+    <span class="kw">CONSTRAINT</span> fk_asgn_container
+        <span class="kw">FOREIGN KEY</span> (container_id)
+        <span class="kw">REFERENCES</span> Container(container_id)
+);</pre>`,
+  tip:`ON DELETE CASCADE op Leg→Shipment zorgt voor automatisch verwijderen. De zelf-referentie (parent_leg_id) heeft geen CASCADE nodig.`
+},
+
+/* ─── DEMO-EXAMEN vraag 8: Window + FILTER ─── */
+{
+  id:26, tags:['sql','window'],
+  src:'Demo-examen v8',
+  q:`Schrijf een query die een <strong>overzicht geeft van alle studenten en hun planten</strong>:<br>
+• <strong>Cumulatieve som</strong> van <code>levensverwachting_in_jaar</code>, oplopend gesorteerd op <code>geplant</code><br>
+• Voor geloof <code>'None of your business'</code>: hoeveel planten zijn <strong>composteerbaar</strong><br>
+• Voor geloof <code>'i_am_the_solution'</code>: hoeveel planten zijn <strong>verbrandbaar</strong><br>
+• Sorteer op <code>geplant</code>`,
+  qtype:'open',
+  hint:`Cumulatieve som → window function SUM() OVER (ORDER BY geplant). De conditonele tellers → COUNT() FILTER (WHERE ...) of CASE WHEN. Studenten zonder plant moeten ook getoond worden → welke JOIN?`,
+  a:`<pre><span class="kw">SELECT</span>
+    s.voornaam,
+    s.achternaam,
+    p.naam,
+    p.geplant,
+    <span class="fn">SUM</span>(p.levensverwachting_in_jaar)
+        <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> p.geplant)         <span class="kw">AS</span> sum,
+    s.geloof,
+    <span class="fn">COUNT</span>(p.naam) <span class="kw">FILTER</span> (
+        <span class="kw">WHERE</span> s.geloof = <span class="str">'None of your business'</span>
+          <span class="kw">AND</span> p.composteerbaar = <span class="kw">TRUE</span>
+    ) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> s.geloof)      <span class="kw">AS</span> aantal_vraag_per_geloof
+<span class="kw">FROM</span> student s
+<span class="kw">LEFT JOIN</span> plant p <span class="kw">ON</span> p.van_student = s.uid
+<span class="kw">ORDER BY</span> p.geplant;</pre>
+Nota: voor het tweede geloof (<code>'i_am_the_solution'</code> / verbrandbaar) zou je een UNION of CASE WHEN kunnen toevoegen. De exacte uitvoer uit het examen toont beide geloofwaarden in dezelfde kolom met hun respectieve telwaarden.`,
+  tip:`LEFT JOIN zodat studenten zonder plant ook zichtbaar zijn. FILTER werkt op aggregaatfuncties.`
+},
+
+/* ─── DEMO-EXAMEN vraag 9: Procedure verwijder_uit_abonnement ─── */
+{
+  id:27, tags:['procedure'],
+  src:'Demo-examen v9',
+  q:`Schrijf een <strong>script met procedure</strong> <code>verwijder_uit_abonnement(p_abonnementid INT)</code>:<br><br>
+• Als er <strong>geen afhankelijkheden</strong> zijn in tabel <code>telefoneren</code>: verwijder de rij uit <code>abonnementen</code><br>
+• Als er <strong>wel afhankelijkheden</strong> zijn: toon concrete foutboodschap (bv. "er wordt naar de waarde X verwezen in de tabel telefoneren…")<br>
+• Procedure mag <strong>nooit een fout geven</strong> ongeacht de invoer<br>
+• Gebruik een <strong>transactie</strong> om de procedure op te slaan`,
+  qtype:'open',
+  hint:`"Nooit een fout geven" → gebruik RAISE INFO, niet RAISE EXCEPTION. Controleer eerst of er afhankelijkheden bestaan met COUNT(*). Omsluit in BEGIN ... COMMIT.`,
+  a:`<pre><span class="kw">BEGIN</span>;
+
+<span class="kw">CREATE OR REPLACE PROCEDURE</span>
+  <span class="fn">verwijder_uit_abonnement</span>(p_abonnementid <span class="kw">INT</span>)
+<span class="kw">LANGUAGE plpgsql AS</span> $$
+<span class="kw">DECLARE</span>
+    v_count <span class="kw">INT</span>;
+<span class="kw">BEGIN</span>
+    <span class="cm">-- Controleer afhankelijkheden in telefoneren</span>
+    <span class="kw">SELECT COUNT</span>(*) <span class="kw">INTO</span> v_count
+    <span class="kw">FROM</span> telefoneren
+    <span class="kw">WHERE</span> abonnementid = p_abonnementid;
+
+    <span class="kw">IF</span> v_count > <span class="num">0</span> <span class="kw">THEN</span>
+        <span class="fn">RAISE INFO</span>
+          <span class="str">'er wordt naar de waarde % verwezen in de tabel telefoneren, gelieve deze eerst te verwijderen'</span>,
+          p_abonnementid;
+    <span class="kw">ELSE</span>
+        <span class="kw">DELETE FROM</span> abonnementen
+        <span class="kw">WHERE</span> abonnementid = p_abonnementid;
+        <span class="fn">RAISE INFO</span> <span class="str">'Abonnement % succesvol verwijderd.'</span>, p_abonnementid;
+    <span class="kw">END IF</span>;
+<span class="kw">EXCEPTION WHEN OTHERS THEN</span>
+    <span class="fn">RAISE INFO</span> <span class="str">'Onverwachte fout: %'</span>, <span class="fn">SQLERRM</span>;
+<span class="kw">END</span>;
+$$;
+
+<span class="cm">-- Test:</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> abonnementen;
+<span class="kw">CALL</span> <span class="fn">verwijder_uit_abonnement</span>(<span class="num">1</span>);  <span class="cm">-- zonder afhankelijkheid</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> abonnementen;
+<span class="kw">CALL</span> <span class="fn">verwijder_uit_abonnement</span>(<span class="num">2</span>);  <span class="cm">-- met afhankelijkheid</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> abonnementen;
+
+<span class="kw">COMMIT</span>;</pre>`,
+  tip:`RAISE INFO = informatief bericht, geen echte fout. RAISE EXCEPTION = breekt de transactie. De vraag zegt "mag geen fout geven" → RAISE INFO.`
+},
+
+/* ─── OEFENEXAMEN vraag 2: DDL Leg + Assignment (nieuw ERD) ─── */
+{
+  id:30, tags:['ddl'],
+  src:'Oefenexamen v2',
+  q:`Schrijf de SQL voor tabellen <strong>Leg</strong> en <strong>Assignment</strong> op basis van het oefenexamen-ERD.<br><br>
+Het Leg-ERD bevat nu ook: <code>name varchar</code>, <code>start_date date</code>, <code>distance_km int</code>.<br>
+Assignment bevat: <code>assignment_id int NOT NULL</code>, <code>leg_id int</code>, <code>container_id int</code>, <code>load_date date</code>.<br><br>
+Bij verwijdering van een Shipment → Legs automatisch verwijderd.`,
+  qtype:'open',
+  hint:`Zelfde structuur als vorige DDL-vraag maar met extra kolommen. Let op: exact de namen uit het ERD — naam, start_date, distance_km zijn nieuw.`,
+  a:`<pre><span class="kw">CREATE TABLE</span> Leg (
+    leg_id         <span class="kw">INT PRIMARY KEY</span>,
+    name           <span class="kw">VARCHAR</span>,
+    shipment_id    <span class="kw">INT</span>,
+    parent_leg_id  <span class="kw">INT</span>,
+    start_date     <span class="kw">DATE</span>,
+    origin         <span class="kw">VARCHAR</span>,
+    destination    <span class="kw">VARCHAR</span>,
+    distance_km    <span class="kw">INT</span>,
+    <span class="kw">CONSTRAINT</span> fk_leg_shipment
+        <span class="kw">FOREIGN KEY</span> (shipment_id)
+        <span class="kw">REFERENCES</span> Shipment(shipment_id)
+        <span class="kw">ON DELETE CASCADE</span>,
+    <span class="kw">CONSTRAINT</span> fk_leg_parent
+        <span class="kw">FOREIGN KEY</span> (parent_leg_id)
+        <span class="kw">REFERENCES</span> Leg(leg_id)
+);
+
+<span class="kw">CREATE TABLE</span> Assignment (
+    assignment_id  <span class="kw">INT NOT NULL PRIMARY KEY</span>,
+    leg_id         <span class="kw">INT</span>,
+    container_id   <span class="kw">INT</span>,
+    load_date      <span class="kw">DATE</span>,
+    <span class="kw">CONSTRAINT</span> fk_asgn_leg
+        <span class="kw">FOREIGN KEY</span> (leg_id) <span class="kw">REFERENCES</span> Leg(leg_id),
+    <span class="kw">CONSTRAINT</span> fk_asgn_container
+        <span class="kw">FOREIGN KEY</span> (container_id) <span class="kw">REFERENCES</span> Container(container_id)
+);</pre>`,
+  tip:`Kolom volgorde: PK eerst, dan FK-kolommen, dan gewone kolommen, dan constraints onderaan.`
+},
+
+/* ─── OEFENEXAMEN vraag 3: Transactie-uitvoer READ COMMITTED ─── */
+{
+  id:31, tags:['transactie'],
+  src:'Oefenexamen v3',
+  q:`Isolatieniveau: <strong>READ COMMITTED</strong>. De volgende instructies worden chronologisch uitgevoerd:
+<pre><span class="cm">-- Jef:</span>
+<span class="kw">START TRANSACTION</span>;
+<span class="kw">SELECT</span> status <span class="kw">FROM</span> Shipment <span class="kw">WHERE</span> shipment_id = <span class="num">500</span>; <span class="cm">-- 'Pending'</span>
+<span class="kw">UPDATE</span> Shipment <span class="kw">SET</span> status = <span class="str">'In Transit'</span> <span class="kw">WHERE</span> shipment_id = <span class="num">500</span>;
+<span class="cm">-- A: Bob leest: SELECT status FROM Shipment WHERE shipment_id = 500;</span>
+<span class="kw">SAVEPOINT</span> s1;
+<span class="kw">UPDATE</span> Shipment <span class="kw">SET</span> status = <span class="str">'Arrived'</span> <span class="kw">WHERE</span> shipment_id = <span class="num">500</span>;
+<span class="cm">-- B: Bob leest opnieuw</span>
+<span class="kw">ROLLBACK TO SAVEPOINT</span> s1;
+<span class="cm">-- C: Jef leest: SELECT status FROM Shipment WHERE shipment_id = 500;</span>
+<span class="kw">COMMIT</span>;
+<span class="cm">-- D: Bob leest opnieuw</span>
+<span class="kw">ROLLBACK</span>;
+<span class="cm">-- E: Bob leest opnieuw</span></pre>
+Wat is de output bij A, B, C, D en E?`,
+  qtype:'open',
+  hint:`READ COMMITTED: je ziet enkel gecommitte data. Jef heeft nog niet gecommit op A en B. Wat ziet Bob dan? Op C: Jef leest zijn eigen uncommitted wijziging. Op D: Jef heeft gecommit — wat is de status?`,
+  a:`<strong>A</strong> (Bob, Jef heeft 'In Transit' geschreven maar nog niet gecommit):<br>
+→ <code>'Pending'</code> — READ COMMITTED = geen dirty reads. Bob ziet de laatste gecommitte waarde.<br><br>
+<strong>B</strong> (Bob, Jef heeft 'Arrived' geschreven, maar nog niet gecommit):<br>
+→ <code>'Pending'</code> — Nog steeds niet gecommit. Bob ziet nog altijd 'Pending'.<br><br>
+<strong>C</strong> (Jef, na ROLLBACK TO SAVEPOINT s1):<br>
+→ <code>'In Transit'</code> — Binnen zijn eigen transactie ziet Jef zijn eigen wijziging. 'Arrived' is teruggedraaid naar s1, dus de status is terug 'In Transit'.<br><br>
+<strong>D</strong> (Bob, Jef heeft COMMIT gedaan met status 'In Transit'):<br>
+→ <code>'In Transit'</code> — Jef heeft gecommit. Bob ziet nu de gecommitte waarde.<br><br>
+<strong>E</strong> (Bob, na ROLLBACK van... Jef heeft al gecommit):<br>
+→ <code>'In Transit'</code> — De ROLLBACK na COMMIT heeft geen effect. 'In Transit' is permanent.`,
+  tip:`Sleutelregel: READ COMMITTED = geen dirty reads. Je ziet altijd de meest recente GECOMMITTE staat.`
+},
+
+/* ─── OEFENEXAMEN vraag 4: Query uitvoer met window + FILTER ─── */
+{
+  id:32, tags:['sql','window'],
+  src:'Oefenexamen v4',
+  q:`Geef de resultaatset van deze query (of leg de fout uit als de query niet werkt):
+<pre><span class="kw">SELECT</span>
+    s.origin_city, l.leg_id, l.parent_leg_id,
+    <span class="fn">sum</span>(l.distance_km) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> l.start_date <span class="kw">ASC</span>) <span class="kw">as</span> total_dist,
+    s.status,
+    <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> s.status = <span class="str">'In Transit'</span>
+        <span class="kw">THEN</span> <span class="fn">count</span>(l.parent_leg_id) <span class="kw">FILTER</span> (<span class="kw">WHERE</span> l.parent_leg_id <span class="kw">IS NOT NULL</span>)
+        <span class="kw">WHEN</span> s.status = <span class="str">'Arrived'</span>
+        <span class="kw">THEN</span> <span class="fn">count</span>(l.leg_id) <span class="kw">FILTER</span> (<span class="kw">WHERE</span> l.distance_km > <span class="num">500</span>)
+    <span class="kw">END AS</span> logic_check
+<span class="kw">FROM</span> shipment s
+<span class="kw">LEFT OUTER JOIN</span> leg l <span class="kw">ON</span> (s.shipment_id = l.shipment_id)
+<span class="kw">GROUP BY</span> s.origin_city, l.leg_id, l.parent_leg_id, l.start_date, s.status, l.distance_km
+<span class="kw">ORDER BY</span> l.start_date <span class="kw">ASC</span>;</pre>
+Data: Shipment(10,'Antwerp','New York',500,'In Transit'), (20,'Brussels','Tokyo',1200,'Arrived'), (30,'Ghent','London',350,'Pending').<br>
+Leg: L1(10,null,100,'2026-01-01'), L2(10,L1,250,'2026-01-05'), L3(20,null,800,'2026-02-10'), L4(20,L3,150,'2026-02-15').`,
+  qtype:'open',
+  hint:`Werk stap voor stap: eerst de JOIN (welke rijen?), dan GROUP BY (wat groepeert het?), dan de window (cumulatief over start_date), dan de CASE per status. Wat is logic_check voor 'Pending' (geen WHEN)?`,
+  a:`De query werkt. GROUP BY groepeert per (origin_city, leg_id, parent_leg_id, start_date, status, distance_km) — elke leg is al uniek, dus elke groep heeft 1 rij.<br><br>
+<strong>Resultaat (gesorteerd op start_date):</strong>
+<pre>origin_city | leg_id | parent_leg_id | total_dist | status     | logic_check
+------------+--------+---------------+------------+------------+------------
+Antwerp     | L1     | null          |        100 | In Transit |     0
+Antwerp     | L2     | L1            |        350 | In Transit |     1
+Brussels    | L3     | null          |       1150 | Arrived    |     1
+Brussels    | L4     | L3            |       1300 | Arrived    |     0
+Ghent       | null   | null          |       1300 | Pending    |  null</pre>
+Toelichting:<br>
+• <code>total_dist</code>: cumulatieve som over alle rijen gesorteerd op start_date<br>
+• 'In Transit': count(parent_leg_id IS NOT NULL) → L1=0 (null parent), L2=1 (heeft parent)<br>
+• 'Arrived': count(distance_km > 500) → L3=1 (800>500), L4=0 (150≤500)<br>
+• 'Pending': geen WHEN → <code>NULL</code><br>
+• Ghent (shipment 30) heeft geen legs → LEFT JOIN geeft null-rij`,
+  tip:`CASE WHEN zonder ELSE geeft NULL. LEFT JOIN behoudt shipments zonder legs (Ghent/Pending).`
+},
+
+/* ─── OEFENEXAMEN vraag 5: Query equivalentie + performantie ─── */
+{
+  id:33, tags:['sql','performantie'],
+  src:'Oefenexamen v5',
+  q:`Zijn de twee queries equivalent? Welke is het meest geoptimaliseerd?<br><br>
+<strong>Query 1:</strong>
+<pre><span class="kw">SELECT SUM</span>(s.weight)
+<span class="kw">FROM</span> shipment s, leg l, assignment a, container c
+<span class="kw">WHERE</span> s.shipment_id = l.shipment_id
+  <span class="kw">AND</span> l.leg_id = a.leg_id
+  <span class="kw">AND</span> a.container_id = c.container_id
+  <span class="kw">AND</span> c.type = <span class="str">'Refrigerated'</span>;</pre>
+<strong>Query 2:</strong>
+<pre><span class="kw">SELECT SUM</span>(weight)
+<span class="kw">FROM</span> shipment
+<span class="kw">WHERE</span> shipment_id <span class="kw">IN</span> (
+    <span class="kw">SELECT</span> l.shipment_id
+    <span class="kw">FROM</span> leg l
+    <span class="kw">JOIN</span> assignment a <span class="kw">ON</span> l.leg_id = a.leg_id
+    <span class="kw">JOIN</span> container c <span class="kw">ON</span> a.container_id = c.container_id
+    <span class="kw">WHERE</span> c.type = <span class="str">'Refrigerated'</span>
+);</pre>
+Query plan 1: Execution Time 7.782ms. Query plan 2: Execution Time 3.897ms.`,
+  qtype:'open',
+  hint:`Wat als een shipment meerdere legs heeft die in meerdere 'Refrigerated' containers zitten? Telt Query 1 het gewicht dan meerdere keren? En wat doet IN in Query 2?`,
+  a:`<strong>Equivalentie: niet altijd equivalent!</strong><br>
+Als een shipment meerdere legs heeft die elk in een 'Refrigerated' container zitten, telt Query 1 het gewicht van dat shipment <em>meerdere keren</em> (door de reguliere JOIN-duplicaten). Query 2 gebruikt IN, wat een ship maar één keer telt ongeacht het aantal matches.<br><br>
+<strong>Als de data geen duplicaten veroorzaakt</strong>: ze zijn functioneel equivalent.<br><br>
+<strong>Performantie: Query 2 is sneller</strong> (3.9ms vs 7.8ms).<br>
+Reden: Query 2 gebruikt intern een <em>Hash Semi Join</em> — zodra één match gevonden is per shipment stopt de zoektocht. Query 1 verwerkt alle matches. De query plan bevestigt: "Hash Semi Join" in Query 2 vs "Hash Join" in Query 1.`,
+  tip:`Semi Join (IN, EXISTS) = stopt bij eerste match. Reguliere JOIN = verwerkt alle matches. Semi Join is efficiënter én veiliger voor aggregaties.`
+},
+
+/* ─── OEFENEXAMEN vraag 6: VIEW / persistente opslag ─── */
+{
+  id:34, tags:['sql','theorie'],
+  src:'Oefenexamen v6',
+  q:`De klant heeft <strong>onvoldoende opslagruimte</strong>. Hij wil een query die cumulatief gewicht per <code>destination_city</code> toont, als <strong>persistent object</strong> opslaan.<br><br>
+a. Schrijf de query (shipment_id, destination_city, weight, cumulatief totaal per stad).<br>
+b. Geef <strong>twee duidelijk verschillende</strong> manieren om dit persistent te maken, elk met een script.`,
+  qtype:'open',
+  hint:`Onvoldoende opslag → MATERIALIZED VIEW kan niet (slaat data fysiek op). Welke twee alternatieven blijven over? Denk aan VIEW en functies/procedures.`,
+  a:`<strong>a. De query:</strong>
+<pre><span class="kw">SELECT</span>
+    shipment_id,
+    destination_city,
+    weight,
+    <span class="fn">SUM</span>(weight) <span class="kw">OVER</span> (
+        <span class="kw">PARTITION BY</span> destination_city
+        <span class="kw">ORDER BY</span> shipment_id
+    ) <span class="kw">AS</span> totaal_gewicht_tot_nu
+<span class="kw">FROM</span> shipment;</pre>
+<strong>b. Methode 1: Gewone VIEW</strong>
+<pre><span class="kw">CREATE OR REPLACE VIEW</span> gewicht_per_stad <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+    shipment_id, destination_city, weight,
+    <span class="fn">SUM</span>(weight) <span class="kw">OVER</span> (
+        <span class="kw">PARTITION BY</span> destination_city
+        <span class="kw">ORDER BY</span> shipment_id
+    ) <span class="kw">AS</span> totaal_gewicht_tot_nu
+<span class="kw">FROM</span> shipment;</pre>
+<strong>Methode 2: SQL-functie</strong>
+<pre><span class="kw">CREATE OR REPLACE FUNCTION</span> <span class="fn">get_gewicht_per_stad</span>()
+<span class="kw">RETURNS TABLE</span>(
+    shipment_id <span class="kw">INT</span>,
+    destination_city <span class="kw">VARCHAR</span>,
+    weight <span class="kw">DECIMAL</span>,
+    totaal_gewicht_tot_nu <span class="kw">DECIMAL</span>
+) <span class="kw">AS</span> $$
+    <span class="kw">SELECT</span>
+        shipment_id, destination_city, weight,
+        <span class="fn">SUM</span>(weight) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> destination_city <span class="kw">ORDER BY</span> shipment_id)
+    <span class="kw">FROM</span> shipment;
+$$ <span class="kw">LANGUAGE SQL</span>;</pre>`,
+  tip:`Geen opslag = geen MATERIALIZED VIEW. VIEW is altijd actueel maar gebruikt geen opslag. Functie geeft meer flexibiliteit (parameters mogelijk).`
+},
+
+/* ─── OEFENEXAMEN vraag 7: Recursieve CTE ─── */
+{
+  id:35, tags:['sql'],
+  src:'Oefenexamen v7',
+  q:`Schrijf een query die <strong>alle sub-legs</strong> toont van de leg met naam <code>'Pacific Transit'</code>.<br><br>
+Zorg dat de volledige hiërarchie wordt weergegeven, inclusief sub-legs van sub-legs, totdat er geen verdere sub-legs meer zijn. De diepte is onbekend.`,
+  qtype:'open',
+  hint:`Onbekende diepte → recursieve CTE. Wat is het basisgeval? Wat is de recursieve stap? Hoe stop je de recursie?`,
+  a:`<pre><span class="kw">WITH RECURSIVE</span> sub_legs <span class="kw">AS</span> (
+    <span class="cm">-- Basisgeval: vind de startleg 'Pacific Transit'</span>
+    <span class="kw">SELECT</span>
+        leg_id, name, shipment_id,
+        parent_leg_id, start_date, origin,
+        destination, distance_km,
+        <span class="num">0</span> <span class="kw">AS</span> diepte
+    <span class="kw">FROM</span> Leg
+    <span class="kw">WHERE</span> name = <span class="str">'Pacific Transit'</span>
+
+    <span class="kw">UNION ALL</span>
+
+    <span class="cm">-- Recursieve stap: zoek kinderen van huidige rijen</span>
+    <span class="kw">SELECT</span>
+        l.leg_id, l.name, l.shipment_id,
+        l.parent_leg_id, l.start_date, l.origin,
+        l.destination, l.distance_km,
+        sl.diepte + <span class="num">1</span>
+    <span class="kw">FROM</span> Leg l
+    <span class="kw">INNER JOIN</span> sub_legs sl <span class="kw">ON</span> l.parent_leg_id = sl.leg_id
+)
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> sub_legs
+<span class="kw">WHERE</span> diepte > <span class="num">0</span>  <span class="cm">-- enkel de sub-legs, niet de startleg zelf</span>
+<span class="kw">ORDER BY</span> diepte, leg_id;</pre>`,
+  tip:`Basisgeval = de startleg. Recursieve stap = JOIN op parent_leg_id = vorige leg_id. Stopt automatisch als geen kinderen meer gevonden worden.`
+},
+
+/* ─── OEFENEXAMEN vraag 8: NOT EXISTS / EXCEPT ─── */
+{
+  id:36, tags:['sql'],
+  src:'Oefenexamen v8',
+  q:`Schrijf een query die alle <strong>Containers (id en type)</strong> teruggeeft die <strong>nooit</strong> werden toegewezen aan een Leg met oorsprong (<code>origin</code>) '<code>Antwerp</code>'.`,
+  qtype:'open',
+  hint:`"Nooit toegewezen aan" → denk aan NOT EXISTS, NOT IN, of EXCEPT. Welke tabellen moet je joinen om van Container bij origin van Leg te geraken?`,
+  a:`<strong>Methode 1: NOT EXISTS</strong>
+<pre><span class="kw">SELECT</span> c.container_id, c.type
+<span class="kw">FROM</span> Container c
+<span class="kw">WHERE NOT EXISTS</span> (
+    <span class="kw">SELECT</span> <span class="num">1</span>
+    <span class="kw">FROM</span> Assignment a
+    <span class="kw">JOIN</span> Leg l <span class="kw">ON</span> a.leg_id = l.leg_id
+    <span class="kw">WHERE</span> a.container_id = c.container_id
+      <span class="kw">AND</span> l.origin = <span class="str">'Antwerp'</span>
+);</pre>
+<strong>Methode 2: EXCEPT</strong>
+<pre><span class="kw">SELECT</span> container_id, type <span class="kw">FROM</span> Container
+<span class="kw">EXCEPT</span>
+<span class="kw">SELECT</span> c.container_id, c.type
+<span class="kw">FROM</span> Container c
+<span class="kw">JOIN</span> Assignment a <span class="kw">ON</span> c.container_id = a.container_id
+<span class="kw">JOIN</span> Leg l <span class="kw">ON</span> a.leg_id = l.leg_id
+<span class="kw">WHERE</span> l.origin = <span class="str">'Antwerp'</span>;</pre>`,
+  tip:`EXCEPT verwijdert automatisch duplicaten (zoals UNION). NOT IN hier ook mogelijk maar pas op voor NULLs in container_id.`
+},
+
+/* ─── OEFENEXAMEN vraag 9: Trigger ─── */
+{
+  id:37, tags:['procedure'],
+  src:'Oefenexamen v9',
+  q:`Schrijf een <strong>triggerfunctie</strong> die automatisch de status van een <code>Container</code> bijwerkt naar <code>'Full'</code> wanneer de som van de gewichten van de toegewezen Shipments de capaciteit van die Container bereikt.`,
+  qtype:'open',
+  hint:`Wanneer triggert dit? Na een INSERT op Assignment. Wat moet je berekenen? De som van gewichten van alle shipments die aan die container zijn toegewezen via legs. Vergelijk met de capaciteit van de container.`,
+  a:`<pre><span class="kw">CREATE OR REPLACE FUNCTION</span> <span class="fn">check_container_capacity</span>()
+<span class="kw">RETURNS TRIGGER LANGUAGE plpgsql AS</span> $$
+<span class="kw">DECLARE</span>
+    v_gewicht   <span class="kw">DECIMAL</span>;
+    v_capaciteit <span class="kw">DECIMAL</span>;
+<span class="kw">BEGIN</span>
+    <span class="cm">-- Som van gewichten van alle shipments in deze container</span>
+    <span class="kw">SELECT</span> <span class="fn">COALESCE</span>(<span class="fn">SUM</span>(s.weight), <span class="num">0</span>)
+    <span class="kw">INTO</span> v_gewicht
+    <span class="kw">FROM</span> Assignment a
+    <span class="kw">JOIN</span> Leg l      <span class="kw">ON</span> a.leg_id = l.leg_id
+    <span class="kw">JOIN</span> Shipment s <span class="kw">ON</span> l.shipment_id = s.shipment_id
+    <span class="kw">WHERE</span> a.container_id = NEW.container_id;
+
+    <span class="cm">-- Capaciteit van de container</span>
+    <span class="kw">SELECT</span> capacity <span class="kw">INTO</span> v_capaciteit
+    <span class="kw">FROM</span> Container
+    <span class="kw">WHERE</span> container_id = NEW.container_id;
+
+    <span class="kw">IF</span> v_gewicht >= v_capaciteit <span class="kw">THEN</span>
+        <span class="kw">UPDATE</span> Container
+        <span class="kw">SET</span> status = <span class="str">'Full'</span>
+        <span class="kw">WHERE</span> container_id = NEW.container_id;
+    <span class="kw">END IF</span>;
+
+    <span class="kw">RETURN NEW</span>;
+<span class="kw">END</span>;
+$$;
+
+<span class="kw">CREATE TRIGGER</span> trg_container_vol
+<span class="kw">AFTER INSERT OR UPDATE ON</span> Assignment
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">EXECUTE FUNCTION</span> <span class="fn">check_container_capacity</span>();</pre>`,
+  tip:`NEW.container_id verwijst naar de net ingevoegde Assignment-rij. COALESCE voorkomt NULL bij lege som.`
+},
+
+/* ─── OEFENEXAMEN vraag 10: ROLLUP ─── */
+{
+  id:38, tags:['sql','window'],
+  src:'Oefenexamen v10',
+  q:`Schrijf een query die per <code>destination_city</code> en per <code>status</code> het totale gewicht toont, <strong>met subtotaal per stad én algemeen totaal</strong>.<br><br>
+Verplichte kolommen: <code>destination_city</code>, <code>status</code>, <code>total_weight</code>.`,
+  qtype:'open',
+  hint:`Subtotalen per stad + algemeen totaal → welke GROUP BY extensie gebruik je? ROLLUP, CUBE, of GROUPING SETS?`,
+  a:`<pre><span class="kw">SELECT</span>
+    destination_city,
+    status,
+    <span class="fn">SUM</span>(weight) <span class="kw">AS</span> total_weight
+<span class="kw">FROM</span> shipment
+<span class="kw">GROUP BY ROLLUP</span> (destination_city, status)
+<span class="kw">ORDER BY</span> destination_city <span class="kw">NULLS LAST</span>, status <span class="kw">NULLS LAST</span>;</pre>
+<code>ROLLUP(a, b)</code> genereert automatisch:<br>
+• Gedetailleerde rijen: (city, status)<br>
+• Subtotalen per stad: (city, NULL)<br>
+• Algemeen totaal: (NULL, NULL)`,
+  tip:`ROLLUP = hiërarchisch. CUBE = alle combinaties. GROUPING SETS = zelf kiezen. Bij "subtotaal per stad + totaal" → ROLLUP.`
+},
+
+/* ─── OEFENEXAMEN vraag 11: INNER JOIN vs INTERSECT ─── */
+{
+  id:39, tags:['theorie'],
+  src:'Oefenexamen v11',
+  q:`Leg het verschil uit tussen een <code>INNER JOIN</code> en <code>INTERSECT</code> in SQL. Geef ook een voorbeeld van wanneer je elk gebruikt.`,
+  qtype:'open',
+  hint:`Denk aan: wat combineer je bij een JOIN? Kolommen of rijen? En bij INTERSECT?`,
+  a:`<strong>INNER JOIN:</strong><br>
+Combineert rijen uit twee tabellen op basis van een join-conditie. Retourneert kolommen uit beide tabellen. Kan duplicaten produceren als de join-kolom niet uniek is.
+<pre><span class="kw">SELECT</span> s.shipment_id, l.leg_id
+<span class="kw">FROM</span> Shipment s
+<span class="kw">INNER JOIN</span> Leg l <span class="kw">ON</span> s.shipment_id = l.shipment_id;</pre>
+→ Gebruik bij: gerelateerde data uit meerdere tabellen samenvoegen.<br><br>
+<strong>INTERSECT:</strong><br>
+Geeft enkel de rijen terug die in beide resultaatsets voorkomen. Werkt op volledige rijen (alle kolommen moeten overeenkomen). Verwijdert automatisch duplicaten.
+<pre><span class="kw">SELECT</span> destination_city <span class="kw">FROM</span> shipment <span class="kw">WHERE</span> status = <span class="str">'Arrived'</span>
+<span class="kw">INTERSECT</span>
+<span class="kw">SELECT</span> destination_city <span class="kw">FROM</span> shipment <span class="kw">WHERE</span> weight > <span class="num">1000</span>;</pre>
+→ Gebruik bij: gemeenschappelijke elementen vinden tussen twee onafhankelijke sets.`,
+  tip:`JOIN = kolommen samenvoegen op conditie. INTERSECT = gemeenschappelijke rijen vinden.`
+},
+
+/* ─── OEFENEXAMEN vraag 12: GRANT / REVOKE ─── */
+{
+  id:40, tags:['security'],
+  src:'Oefenexamen v12',
+  q:`Maak een rol <code>shipment_manager</code> voor de logistieke afdeling met:<br>
+• <code>SELECT</code>-rechten op <code>Shipment</code> en <code>Container</code><br>
+• <code>INSERT</code> en <code>UPDATE</code>-rechten op <code>Container</code><br>
+• <strong>Geen</strong> DELETE-rechten<br>
+• Ken de rol toe aan jouw r-gebruiker<br><br>
+Schrijf alle nodige SQL-statements.`,
+  qtype:'open',
+  hint:`CREATE ROLE → GRANT rechten aan de rol → GRANT de rol aan de gebruiker. Geen DELETE toekennen = gewoon niet GRANTen.`,
+  a:`<pre><span class="cm">-- 1. Rol aanmaken</span>
+<span class="kw">CREATE ROLE</span> shipment_manager;
+
+<span class="cm">-- 2. SELECT op beide tabellen</span>
+<span class="kw">GRANT SELECT ON</span> Shipment <span class="kw">TO</span> shipment_manager;
+<span class="kw">GRANT SELECT ON</span> Container <span class="kw">TO</span> shipment_manager;
+
+<span class="cm">-- 3. INSERT + UPDATE op Container</span>
+<span class="kw">GRANT INSERT</span>, <span class="kw">UPDATE ON</span> Container <span class="kw">TO</span> shipment_manager;
+
+<span class="cm">-- 4. DELETE: niet toekennen (gewoon weglaten)</span>
+
+<span class="cm">-- 5. Rol toekennen aan gebruiker (vervang r_nummer)</span>
+<span class="kw">GRANT</span> shipment_manager <span class="kw">TO</span> r_nummer;
+
+<span class="cm">-- Rechten intrekken (indien nodig):</span>
+<span class="cm">-- REVOKE INSERT ON Container FROM shipment_manager;</span></pre>`,
+  tip:`GRANT DELETE weglaten = geen DELETE-rechten. REVOKE verwijdert rechten achteraf. Rollen zijn herbruikbaar templates.`
+}
+
+]; // einde QS
+
+/* ══════════════════════════════════════════════════════════
+   SCORE & FILTER STATE
+══════════════════════════════════════════════════════════ */
+let scores = {};
+let activeTag = 'all';
+
+const allTags = ['all', ...new Set(QS.flatMap(q => q.tags))];
+const tagLabels = {
+  all:'Alle vragen',stelling:'Stellingen',theorie:'Theorie',
+  sql:'SQL Queries',ddl:'DDL',procedure:'Procedures',
+  transactie:'Transacties',window:'Window Functions',
+  performantie:'Performantie',security:'Beveiliging'
 };
 
-/* ═══════════════════════════════════════
-   ALL 10 TOPICS COMPLETED WITH QUESTIONS + ANSWERS
-═══════════════════════════════════════ */
-const TOPIC_QUESTIONS = {
-  select: [
-    {q: "Wat is de logische volgorde van uitvoering van WHERE, JOIN en HAVING?", a: "Logisch voert SQL eerst de <code>JOIN</code> en <code>FROM</code> uit, filtert daarna rijen via <code>WHERE</code>, groepeert dan, en past pas als laatste <code>HAVING</code> toe op de groepen."},
-    {q: "Waarom werkt 'WHERE kolom = NULL' nooit in SQL?", a: "In SQL is <code>NULL</code> geen waarde maar de afwezigheid ervan. Elke directe vergelijking resulteert in 'Unknown'. Je moet verplicht <code>IS NULL</code> of <code>IS NOT NULL</code> gebruiken."}
-  ],
-  window: [
-    {q: "Wat is het exacte verschil tussen RANK() en DENSE_RANK() bij gelijke waarden?", a: "Beide geven gelijke rijen dezelfde rang. Maar <code>RANK()</code> slaat daarna rangnummers over (bv. 1, 2, 2, 4), terwijl <code>DENSE_RANK()</code> direct aansluitend nummert (bv. 1, 2, 2, 3)."},
-    {q: "Mag je een Window Function direct filteren in een WHERE-clausule?", a: "Nee, window functions worden pas uitgevoerd *na* de WHERE-fase. Om te filteren moet je de query inbedden in een Subquery of CTE."}
-  ],
-  groupby: [
-    {q: "Wat produceert GROUP BY ROLLUP(jaar, maand) aan subtotalen?", a: "Het genereert subtotalen voor: 1) de combinatie (jaar, maand), 2) per jaar (jaar, NULL), veegt alles samen en geeft 3) het algemeen totaal (NULL, NULL)."},
-    {q: "Wanneer gebruik je HAVING in plaats van WHERE?", a: "Je gebruikt <code>HAVING</code> uitsluitend wanneer je wilt filteren op het resultaat van een aggregaatfunctie (zoals <code>COUNT(*) > 5</code>), wat pas ná de groepering kan."}
-  ],
-  subquery: [
-    {q: "Waarom is een correlated subquery vaak trager dan een reguliere subquery?", a: "Een correlated subquery verwijst naar kolommen van de buitenquery en moet daardoor (conceptueel) **rij voor rij opnieuw** worden geëvalueerd."},
-    {q: "Wat gebeurt er als een subquery binnen een NOT IN clausule één NULL retourneert?", a: "De gehele <code>NOT IN</code> conditie faalt en retourneert een **lege resultaatset**. Dit komt omdat <code>NOT IN (1, NULL)</code> vertaalt naar <code>x != 1 AND x != NULL</code>, wat altijd 'Unknown' is."}
-  ],
-  cte: [
-    {q: "Hoe voorkom je een oneindige lus binnen een WITH RECURSIVE query?", a: "Door een expliciete stopconditie in de WHERE-clausule van de recursieve stap op te nemen (zoals een maximale diepte limiet <code>WHERE depth < 10</code>) of wanneer de JOIN geen rijen meer oplevert."},
-    {q: "Welke operator verbindt het basisgeval en de recursieve stap in een CTE?", a: "Dat is de <code>UNION ALL</code> operator (of soms <code>UNION</code> om duplicaten direct te filteren)."}
-  ],
-  ddl: [
-    {q: "Wat is het verschil tussen ON DELETE RESTRICT and ON DELETE NO ACTION?", a: "Beide blokkeren de verwijdering van een ouderrij als er kinderen zijn. Maar <code>RESTRICT</code> checkt dit direct onmiddellijk, terwijl <code>NO ACTION</code> de check toestaat aan het einde van de transactie (deferred constraint)."},
-    {q: "Kan een tabel meerdere PRIMARY KEY constraints bevatten?", a: "Nee, een tabel kan maar **één** Primary Key hebben. Wel kan die PK bestaan uit meerdere kolommen (samengestelde sleutel), en kun je daarnaast meerdere <code>UNIQUE</code> constraints definiëren."}
-  ],
-  transaction: [
-    {q: "Wat gebeurt er met de wijzigingen na een ROLLBACK TO SAVEPOINT?", a: "Alleen de database-wijzigingen die *na* het definieren van dat specifieke savepoint zijn gedaan worden teruggedraaid. De transactie zelf blijft **actief** en geopend!"},
-    {q: "Welke PL/pgSQL instructie breekt een actieve transactie onmiddellijk af?", a: "De instructie <code>RAISE EXCEPTION</code>. In tegenstelling tot <code>RAISE INFO</code> werpt dit een fatale fout op die de transactie abrupteert."}
-  ],
-  procedure: [
-    {q: "Wat is het functionele verschil tussen de records NEW and OLD in triggers?", a: "<code>NEW</code> bevat de nieuw binnenkomende rij (beschikbaar bij INSERT/UPDATE). <code>OLD</code> bevat de oorspronkelijke rij zoals deze in de tabel stond (beschikbaar bij UPDATE/DELETE)."},
-    {q: "Hoe kun je een DML-actie volledig annuleren vanuit een BEFORE trigger?", a: "Door expliciet <code>RETURN NULL;</code> te retourneren in de trigger-functie. De geplande INSERT/UPDATE of DELETE wordt dan geruisloos overgeslagen."}
-  ],
-  isolation: [
-    {q: "Wat is een 'Non-Repeatable Read' en hoe verschilt dit van een 'Phantom Read'?", a: "Bij bir <code>Non-Repeatable Read</code> wijzigt een andere commit de *data van een bestaande rij* die je opnieuw leest. Bij een <code>Phantom Read</code> voegt een andere commit *volledig nieuwe rijen* toe die voldoen aan je zoekcriteria."}
-  ],
-  replication: [
-    {q: "Waarom kan fysieke replicatie niet tussen verschillende grote PostgreSQL versies?", a: "Omdat fysieke replicatie de Write-Ahead Logs (WAL) **byte-voor-byte** kopieert. De binaire opslagstructuur op de schijf moet exact identiek zijn. Logische replicatie kan dit wel."},
-    {q: "Draait de database bij het maken van een 'Hot Backup'?", a: "Ja, bij een **Hot Backup** (zoals via <code>pg_basebackup</code>) blijft de database volledig online en operationeel voor gebruikers."}
-  ]
-};
-
-/* ═══════════════════════════════════════
-   STATE & CORE LOGIC
-═══════════════════════════════════════ */
-let mode = 'sql';
-let currentTopic = '';
-let acItems = [];
-let acFocus = -1;
-let hintsShown = new Set();
-let lastWord = '';
-
-const editor = document.getElementById('editor');
-const ac = document.getElementById('autocomplete');
-const companionBody = document.getElementById('companion-body');
-const statusText = document.getElementById('status-text');
-const charCount = document.getElementById('char-count');
-const thinkInput = document.getElementById('think-input');
-const thinkReply = document.getElementById('think-reply');
-
-document.querySelectorAll('.pill').forEach(p => {
-  p.addEventListener('click', () => {
-    document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
-    p.classList.add('active');
-    mode = p.dataset.mode;
-    const label = document.getElementById('editor-label');
-    if (mode === 'sql') {
-      label.textContent = 'SQL Editor';
-      editor.placeholder = 'Schrijf hier je SQL query...\n\nBegin met SELECT, WITH, CREATE, INSERT...';
-    } else if (mode === 'concept') {
-      label.textContent = 'Concept Notities';
-      editor.placeholder = 'Schrijf wat je weet over een concept...\n\nBijvoorbeeld: "ACID betekent..."';
-    } else {
-      label.textContent = 'Vrij schrijven';
-      editor.placeholder = 'Schrijf vrij — samenvattingen, vragen, aantekeningen...';
-    }
-  });
+/* ── BUILD FILTERS ── */
+const fwrap = document.getElementById('filters');
+allTags.forEach(t => {
+  const btn = document.createElement('button');
+  btn.className = 'fb' + (t === 'all' ? ' on' : '');
+  btn.dataset.tag = t;
+  const cnt = t === 'all' ? QS.length : QS.filter(q => q.tags.includes(t)).length;
+  btn.innerHTML = `${tagLabels[t]||t} <span style="opacity:.55;font-size:.62rem">${cnt}</span>`;
+  btn.onclick = () => {
+    document.querySelectorAll('.fb').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    activeTag = t;
+    render();
+  };
+  fwrap.appendChild(btn);
 });
 
-function onTopicChange() {
-  currentTopic = document.getElementById('topic-select').value;
-  hintsShown.clear();
-  clearCompanion();
-  
-  if (!currentTopic) {
-    showWelcome();
-    return;
-  }
+/* ── RENDER ── */
+function render() {
+  const list = activeTag === 'all' ? QS : QS.filter(q => q.tags.includes(activeTag));
+  const container = document.getElementById('cards');
+  if (!list.length) { container.innerHTML = '<div class="empty">Geen vragen in deze categorie.</div>'; return; }
 
-  // 1. Zorg dat de interactieve vragen ALTIJD als eerste bovenaan verschijnen
-  if (TOPIC_QUESTIONS[currentTopic]) {
-    addQuestionQuizCard(currentTopic);
-  }
-
-  // 2. Laad de bijbehorende statische insights er direct onder
-  if (TOPIC_HINTS[currentTopic]) {
-    showTopicHints(currentTopic);
-  }
-}
-
-function showTopicHints(topic) {
-  const hints = TOPIC_HINTS[topic];
-  if (!hints) return;
-  hints.forEach((h, i) => {
-    setTimeout(() => addHint(h), i * 100);
-  });
-}
-
-function showWelcome() {
-  companionBody.innerHTML = `
-    <div class="welcome" id="welcome">
-      <span class="welcome-big">👆</span>
-      Begin te typen in de editor.<br>
-      Kies een onderwerp voor gerichte hints.<br>
-      <br>
-      De companion denkt met je mee —<br>
-      stelt vragen, geeft syntaxhints,<br>
-      waarschuwt voor valkuilen.
-    </div>
-  `;
-}
-
-function addQuestionQuizCard(topic) {
-  const questions = TOPIC_QUESTIONS[topic];
-  if (!questions || !questions.length) return;
-
-  const welcome = document.getElementById('welcome');
-  if (welcome) welcome.remove();
-
-  const div = document.createElement('div');
-  div.className = 'hint-card question';
-  
-  let quizHtml = `<div class="quiz-wrapper">`;
-  questions.forEach((qObj) => {
-    quizHtml += `
-      <div class="quiz-item" onclick="toggleQuizAnswer(this)">
-        <div class="quiz-q">${qObj.q}</div>
-        <div class="quiz-a">${qObj.a}</div>
+  container.innerHTML = list.map(q => {
+    const sc = scores[q.id];
+    return `
+    <div class="qcard" id="qc-${q.id}">
+      <div class="qcard-head">
+        <span class="qnum">#${q.id}</span>
+        <div style="flex:1">
+          <div class="qsource">${q.src}</div>
+        </div>
+        <div class="qtags">
+          ${q.tags.map(t=>`<span class="qtag tag-${t}">${tagLabels[t]||t}</span>`).join('')}
+          <span class="qtag" style="background:rgba(255,255,255,.05);color:var(--t2)">${q.qtype}</span>
+        </div>
       </div>
-    `;
-  });
-  quizHtml += `</div>`;
-
-  div.innerHTML = `
-    <div class="hint-header">
-      <span class="hint-icon">🤔</span>
-      <span class="hint-type-label">Onderwerp Quiz — Klik voor antwoord</span>
-      <button class="hint-dismiss" onclick="this.closest('.hint-card').remove()" title="Sluiten">✕</button>
-    </div>
-    <div class="hint-body">
-      Probeer deze examenvragen op te lossen. Klik op een vraag om de verborgen oplossing te bekijken!
-      ${quizHtml}
-    </div>
-  `;
-  
-  companionBody.insertBefore(div, companionBody.firstChild);
+      <div class="qbody">
+        <div class="qtext">${q.q}</div>
+        ${q.hint ? `<div class="hint-box">💭 ${q.hint}</div>` : ''}
+      </div>
+      <div class="qactions">
+        <button class="btn-show" onclick="toggle(${q.id})">Toon antwoord ▾</button>
+        <button class="btn-mark ok ${sc==='ok'?'selected-ok':''}" onclick="mark(${q.id},'ok')">✓ Correct</button>
+        <button class="btn-mark err ${sc==='err'?'selected-err':''}" onclick="mark(${q.id},'err')">✗ Fout</button>
+      </div>
+      <div class="answer-block" id="ans-${q.id}">
+        <div class="alabel">▸ Antwoord</div>
+        <div class="answer-text">${q.a}${q.tip?`<div class="tip-strip">💡 ${q.tip}</div>`:''}</div>
+      </div>
+    </div>`;
+  }).join('');
+  updateStats();
 }
 
-function toggleQuizAnswer(el) {
-  el.classList.toggle('open');
+function toggle(id) {
+  const b = document.getElementById(`ans-${id}`);
+  const btn = b.previousElementSibling.querySelector('.btn-show');
+  const open = b.classList.toggle('open');
+  btn.textContent = open ? 'Verberg antwoord ▴' : 'Toon antwoord ▾';
 }
 
-/* ═══════════════════════════════════════
-   AUTOCOMPLETE ENGINE
-═══════════════════════════════════════ */
-editor.addEventListener('keydown', e => {
-  if (ac.style.display === 'block') {
-    if (e.key === 'ArrowDown') { e.preventDefault(); moveFocus(1); return; }
-    if (e.key === 'ArrowUp')   { e.preventDefault(); moveFocus(-1); return; }
-    if (e.key === 'Tab' || e.key === 'Enter') {
-      if (acFocus >= 0) { e.preventDefault(); selectAC(acItems[acFocus]); return; }
-    }
-    if (e.key === 'Escape') { hideAC(); return; }
-  }
-  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-    e.preventDefault();
-    analyzeQuery();
-  }
-});
-
-editor.addEventListener('input', () => {
-  charCount.textContent = editor.value.length + ' tekens';
-  hideAC();
-  const text = editor.value;
-  const pos = editor.selectionStart;
-  const before = text.slice(0, pos);
-  const m = before.match(/[\w_]+$/);
-  if (!m || m[0].length < 2) return;
-  const word = m[0].toUpperCase();
-  if (word === lastWord) return;
-  lastWord = word;
-
-  const matches = SQL_KW.filter(k => k.w.toUpperCase().startsWith(word) && k.w.toUpperCase() !== word).slice(0, 7);
-  if (!matches.length) return;
-
-  acItems = matches;
-  acFocus = -1;
-  ac.style.display = 'block';
-  const lines = before.split('\n');
-  const lineNum = lines.length;
-  ac.style.top = (lineNum * 21 + 16) + 'px';
-  ac.style.left = '16px';
-  ac.style.right = '16px';
-
-  ac.innerHTML = matches.map((item, i) => `
-    <div class="ac-item" data-i="${i}">
-      <span class="ac-type ac-${item.t}">${item.t}</span>
-      <span><span class="ac-match">${item.w.slice(0, word.length)}</span>${item.w.slice(word.length)}</span>
-      <span class="ac-hint">${item.h}</span>
-    </div>
-  `).join('');
-
-  ac.querySelectorAll('.ac-item').forEach((el, i) => {
-    el.addEventListener('mousedown', e => { e.preventDefault(); selectAC(acItems[i]); });
-  });
-
-  if (word === 'NOT' || before.toUpperCase().includes('NOT IN')) {
-    triggerContextHint('notin');
-  }
-});
-
-editor.addEventListener('blur', () => setTimeout(hideAC, 120));
-function hideAC() { ac.style.display = 'none'; acFocus = -1; }
-
-function moveFocus(dir) {
-  acFocus = Math.max(-1, Math.min(acItems.length - 1, acFocus + dir));
-  ac.querySelectorAll('.ac-item').forEach((el, i) => el.classList.toggle('focused', i === acFocus));
+function mark(id, result) {
+  scores[id] = scores[id] === result ? undefined : result;
+  const card = document.getElementById(`qc-${id}`);
+  card.querySelector('.btn-mark.ok').className = `btn-mark ok${scores[id]==='ok'?' selected-ok':''}`;
+  card.querySelector('.btn-mark.err').className = `btn-mark err${scores[id]==='err'?' selected-err':''}`;
+  updateStats();
 }
 
-function selectAC(item) {
-  const pos = editor.selectionStart;
-  const text = editor.value;
-  const before = text.slice(0, pos);
-  const after = text.slice(pos);
-  const m = before.match(/[\w_]+$/);
-  const start = m ? pos - m[0].length : pos;
-  editor.value = text.slice(0, start) + item.w + ' ' + after;
-  editor.selectionStart = editor.selectionEnd = start + item.w.length + 1;
-  editor.focus();
-  hideAC();
-  statusText.textContent = '✓ ' + item.w;
-  setTimeout(() => statusText.textContent = 'Klaar', 2000);
-  triggerContextHint(item.w.toLowerCase().replace(/\s+/g,'_'));
+function updateStats() {
+  const total = QS.length;
+  const ok = Object.values(scores).filter(v=>v==='ok').length;
+  const err = Object.values(scores).filter(v=>v==='err').length;
+  const done = ok + err;
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('pl').textContent = `${done} / ${total}`;
+  document.getElementById('pp').textContent = `${pct}%`;
+  document.getElementById('pf').style.width = pct + '%';
+  document.getElementById('sg').textContent = ok;
+  document.getElementById('sr').textContent = err;
+  document.getElementById('statbar').style.display = done > 0 ? 'flex' : 'none';
 }
 
-/* ═══════════════════════════════════════
-   INSIGHTS & REAL-TIME ANALYSIS
-═══════════════════════════════════════ */
-const KEYWORD_HINTS = {
-  'not_in': {type:'warning',icon:'⚠️',t:'NOT IN + NULL gevaar',b:'Als de subquery één <strong>NULL</strong> bevat, geeft <code>NOT IN</code> altijd een lege resultaatset! Gebruik liever <code>NOT EXISTS</code>.'},
-  'notin': {type:'warning',icon:'⚠️',t:'NOT IN + NULL gevaar',b:'Als de subquery één <strong>NULL</strong> bevat, geeft <code>NOT IN</code> altijd een lege resultaatset! Gebruik liever <code>NOT EXISTS</code>.'},
-  'cross_join': {type:'warning',icon:'⚠️',t:'CROSS JOIN',b:'Produceert N×M rijen (cartesiaans product). Zeker dat je dit wil?'},
-  'with_recursive': {type:'syntax',icon:'📐',t:'Recursieve CTE',b:'Structuur vereist: <code>basisgeval UNION ALL recursieve_stap</code>.'},
-  'rollback_to_savepoint': {type:'tip',icon:'💡',t:'SAVEPOINT',b:'Na ROLLBACK TO SAVEPOINT is de transactie nog steeds geopend en actief.'},
-  'rank': {type:'tip',icon:'💡',t:'RANK vs DENSE_RANK',b:'<code>RANK</code> laat gaten vallen bij ties, <code>DENSE_RANK</code> sluit naadloos aan.'},
-  'dense_rank': {type:'tip',icon:'💡',t:'RANK vs DENSE_RANK',b:'<code>DENSE_RANK</code> kent opeenvolgende rangnummers toe zonder sprongen.'},
-  'raise_exception': {type:'warning',icon:'⚠️',t:'RAISE EXCEPTION',b:'Dit herroept en verbreekt de huidige transactie volledig.'},
-  'on_delete_cascade': {type:'concept',icon:'🔑',t:'CASCADE',b:'Wist gekoppelde records in de kindtabel automatisch mee.'},
-  'partition_by': {type:'tip',icon:'💡',t:'PARTITION BY',b:'Herstart de aggregatieteller of rangorde per unieke groepswaarde.'},
-  'explain_analyze': {type:'tip',icon:'💡',t:'EXPLAIN ANALYZE',b:'Vergroot je inzicht door de geschatte kosten te vergelijken met de actuele runtime.'},
-  'having': {type:'concept',icon:'🔑',t:'HAVING vs WHERE',b:'WHERE filtert vóór aggregatie, HAVING filtert uitsluitend ná de groepering.'},
-  'rollup': {type:'tip',icon:'💡',t:'ROLLUP',b:'Berekent stapsgewijze aggregaties en sluit af met een algemeen cumulatief totaal.'},
-};
-
-function triggerContextHint(kw) {
-  const key = kw.replace(/\s+/g,'_');
-  if (hintsShown.has(key)) return;
-  const hint = KEYWORD_HINTS[key];
-  if (!hint) return;
-  hintsShown.add(key);
-  addHint(hint);
-}
-
-function analyzeQuery() {
-  const text = editor.value.trim().toUpperCase();
-  if (!text) return;
-
-  if (text.includes('NOT IN') && !text.includes('NOT EXISTS')) {
-    addHint({type:'warning',icon:'⚠️',t:'Analyse: NOT IN opgemerkt',b:'Let op mogelijke NULL-waarden binnen je subquery set.'});
-  }
-  if (text.includes('GROUP BY') && text.includes('OVER (')) {
-    addHint({type:'tip',icon:'💡',t:'Analyse: GROUP BY + Window',b:'Zorg dat de window functies correct op geaggregeerde kolommen opereren.'});
-  }
-  if ((text.includes('WITH RECURSIVE') || text.includes('RECURSIVE')) && !text.includes('UNION ALL')) {
-    addHint({type:'warning',icon:'⚠️',t:'Analyse: Syntaxfout',b:'Een recursieve CTE vereist een <code>UNION ALL</code> koppeling.'});
-  }
-  if (!text.includes('NOT IN') && !text.includes('NOT EXISTS') && !text.includes('CROSS JOIN')) {
-    addHint({type:'tip',icon:'💡',t:'Analyse voltooid',b:'Geen kritieke logische syntaxfouten aangetroffen.'});
-  }
-  statusText.innerHTML = '<span class="status-ok">Analyse klaar</span>';
-  setTimeout(() => statusText.textContent = 'Klaar', 3000);
-}
-
-function addHint(h) {
-  const welcome = document.getElementById('welcome');
-  if (welcome) welcome.remove();
-
-  const div = document.createElement('div');
-  div.className = `hint-card ${h.type}`;
-  div.innerHTML = `
-    <div class="hint-header">
-      <span class="hint-icon">${h.icon}</span>
-      <span class="hint-type-label">${h.type} — ${h.t}</span>
-      <button class="hint-dismiss" onclick="this.closest('.hint-card').remove()" title="Sluiten">✕</button>
-    </div>
-    <div class="hint-body">${h.b}</div>
-  `;
-  
-  // Zorg dat de Quiz-kaart (Vragen) ALTIJD bovenaan blijft vaststaan
-  const firstQuestionCard = companionBody.querySelector('.hint-card.question');
-  if (firstQuestionCard && h.type !== 'question') {
-    firstQuestionCard.after(div);
-  } else {
-    companionBody.insertBefore(div, companionBody.firstChild);
-  }
-
-  const cards = companionBody.querySelectorAll('.hint-card');
-  if (cards.length > 8) cards[cards.length - 1].remove();
-}
-
-function clearCompanion() {
-  companionBody.innerHTML = '';
-}
-
-/* ═══════════════════════════════════════
-   THINK-ALOUD PROMPT
-═══════════════════════════════════════ */
-thinkInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const val = thinkInput.value.trim().toLowerCase();
-    if (!val) return;
-    const match = QA.find(q => q.k.some(k => val.includes(k)));
-    thinkReply.style.display = 'block';
-    if (match) {
-      thinkReply.innerHTML = match.r;
-    } else {
-      thinkReply.innerHTML = `Geen directe match voor "<em>${thinkInput.value.trim()}</em>".`;
-    }
-    thinkInput.value = '';
-    setTimeout(() => { thinkReply.style.display = 'none'; }, 8000);
-  }
-});
-
-/* ═══════════════════════════════════════
-   LIVE SCANNER DEBOUNCE
-═══════════════════════════════════════ */
-let debounceTimer;
-editor.addEventListener('input', () => {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    const text = editor.value.toUpperCase();
-    const checks = [
-      {pattern:'NOT IN', key:'not_in'},
-      {pattern:'CROSS JOIN', key:'cross_join'},
-      {pattern:'WITH RECURSIVE', key:'with_recursive'},
-      {pattern:'RANK()', key:'rank'},
-      {pattern:'DENSE_RANK()', key:'dense_rank'},
-      {pattern:'PARTITION BY', key:'partition_by'},
-      {pattern:'HAVING', key:'having'},
-    ];
-    checks.forEach(c => {
-      if (text.includes(c.pattern)) triggerContextHint(c.key);
-    });
-  }, 600);
-});
+render();
 </script>
 </body>
 </html>
